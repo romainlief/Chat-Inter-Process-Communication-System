@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
+#include <unistd.h>
+
+
+#include "main.h"
+
+#define MAX_PSEUDO_LEN 30
+
+int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
+   // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)
+   if (argc < 3) {
+      fprintf(stderr, "chat pseudo_utilisateur pseudo_destinataire [--bot] [--manuel]\n");
+      return 1;
+   }
+
+   // Vérification de la longueur des pseudos
+   if (strlen(pseudo_utilisateur) > MAX_PSEUDO_LEN || strlen(pseudo_destinataire) > MAX_PSEUDO_LEN) {
+      fprintf(stderr, "Erreur : Pseudo trop long, maximum 30 octets/caractères.\n");
+      return 2;
+   }
+
+   // Caractères interdits dans les pseudos
+   const char* invalid_chars = "/-[]";
+   if (strpbrk(pseudo_utilisateur, invalid_chars) || strpbrk(pseudo_destinataire, invalid_chars)) {
+      fprintf(stderr, "Erreur : Pseudo contient des caractères invalides.\n");
+      return 3;
+   }
+
+   // Si les pseudos sont "." ou ".." => erreur
+   if (strcmp(pseudo_utilisateur, ".") == 0 || strcmp(pseudo_utilisateur, "..") == 0 ||
+      strcmp(pseudo_destinataire, ".") == 0 || strcmp(pseudo_destinataire, "..") == 0) {
+      fprintf(stderr, "Erreur : Pseudo invalide.\n");
+      return 3;
+   }
+   
+   return 0;
+}
+
+int main(int argc, char* argv[]) {
+   // Récupération des pseudos
+   char* pseudo_utilisateur = argv[1];
+   char* pseudo_destinataire = argv[2];
+
+   // Vérification des erreurs
+   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
+   if (erreur != 0) {
+      return erreur;
+   }
+
+   return 0;
+}
