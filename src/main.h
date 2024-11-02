@@ -8,4 +8,8 @@
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire);
 
+void create_pipe(const char* pipe_path);
+
+void signal_management(int signa);
+
 #endif 

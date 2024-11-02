@@ -57,53 +57,70 @@ void create_pipe(const char* pipe_path) {
   }
 }
 
+void signal_management(int signa) {
+   if (signa == SIGINT) {
+      printf("Signal SIGINT reçu\n");
+      //close(); pipe1
+      //close(); pipe2
+      exit(0);
+   }  
+   else if (signa == SIGPIPE)
+   {
+      printf("Signal SIGPIPE reçu\n");
+      //close(); pipe1
+      //close(); pipe2
+      exit(1);
+   }
+}
 
 
 // TODO paramètre optionnel (2.3 consignes)
 int main(int argc, char* argv[]) {
 // Récupération des pseudos
-    char* pseudo_utilisateur = argv[1];
-    char* pseudo_destinataire = argv[2];
-    char fifo_sender[72] = "/tmp/";  //taille fifo_dir max=72
-    char fifo_receiver[72] = "/tmp/";  //taille fifo_dir max=72
+   char* pseudo_utilisateur = argv[1];
+   char* pseudo_destinataire = argv[2];
+   
+   char fifo_sender[72] = "/tmp/";  //taille fifo_dir max=72
+   char fifo_receiver[72] = "/tmp/";  //taille fifo_dir max=72
 
-    // Vérification des erreurs
-    int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
-    if (erreur != 0) {
-        return erreur;
-    }
+   // Vérification des erreurs
+   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
+   if (erreur != 0) {
+      return erreur;
+   }
 
-    // Création path pipe
-    strcat(fifo_sender, pseudo_utilisateur);
-    strcat(fifo_sender, "-");
-    strcat(fifo_sender, pseudo_destinataire);
-    strcat(fifo_sender, ".chat");
+   // Création path pipe
+   strcat(fifo_sender, pseudo_utilisateur);
+   strcat(fifo_sender, "-");
+   strcat(fifo_sender, pseudo_destinataire);
+   strcat(fifo_sender, ".chat");
 
-    strcat(fifo_receiver, pseudo_destinataire);
-    strcat(fifo_receiver, "-");
-    strcat(fifo_receiver, pseudo_utilisateur);
-    strcat(fifo_receiver, ".chat");
+   strcat(fifo_receiver, pseudo_destinataire);
+   strcat(fifo_receiver, "-");
+   strcat(fifo_receiver, pseudo_utilisateur);
+   strcat(fifo_receiver, ".chat");
 
-    printf("%s\n", fifo_sender);
-    printf("%s\n", fifo_receiver);
-    printf("pseudo_utilisateur : %s\n", pseudo_utilisateur);
+   printf("%s\n", fifo_sender);
+   printf("%s\n", fifo_receiver);
+   printf("pseudo_utilisateur : %s\n", pseudo_utilisateur);
+   printf("pseudo_destinataire : %s\n", pseudo_destinataire);
 
-    create_pipe(fifo_sender);
-    create_pipe(fifo_receiver);
+   create_pipe(fifo_sender);
+   create_pipe(fifo_receiver);
+   // TODO ouvrir les pipes (2.5 consignes)
+   // utiliser fork()
 
+   signal(SIGINT, signal_management);
+   signal(SIGPIPE, signal_management);
 
-    // scan for messages
+   // scan for messages
+
     
-
-    // TODO ouvrir les pipes (2.5 consignes)
-      // utiliser fork()
-
-    
-    // TODO Supprimer les pipes (2.4 consignes)
+   // TODO Supprimer les pipes (2.4 consignes)
 
 
-    unlink(fifo_sender);
-    unlink(fifo_receiver);
+   unlink(fifo_sender);
+   unlink(fifo_receiver);
 
-    return 0;
+   return 0;
 }
