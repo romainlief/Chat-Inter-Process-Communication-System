@@ -53,12 +53,29 @@ int main(int argc, char* argv[]) {
    // Récupération des pseudos
    char* pseudo_utilisateur = argv[1];
    char* pseudo_destinataire = argv[2];
+   char fifo_dir[72] = "/tmp/";  //taille fifo_dir max=36
+   char fifo_dir2[72] = "/tmp/";  //taille fifo_dir max=36
 
    // Vérification des erreurs
    int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
    if (erreur != 0) {
       return erreur;
    }
+
+   // Création path pipe
+   strcat(fifo_dir, pseudo_utilisateur);
+   strcat(fifo_dir, "-");
+   strcat(fifo_dir, pseudo_destinataire);
+   strcat(fifo_dir, ".chat");
+
+   strcat(fifo_dir2, pseudo_destinataire);
+   strcat(fifo_dir2, "-");
+   strcat(fifo_dir2, pseudo_utilisateur);
+   strcat(fifo_dir2, ".chat");
+   
+   printf("%s\n", fifo_dir);
+   printf("%s\n", fifo_dir2);
+
 
    return 0;
 }
