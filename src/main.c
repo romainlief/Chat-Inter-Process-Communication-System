@@ -76,6 +76,7 @@ int main(int argc, char* argv[]) {
    
    printf("%s\n", fifo_dir);
    printf("%s\n", fifo_dir2);
+   printf("pseudo_utilisateur : %s\n", pseudo_utilisateur);
 
 
    return 0;
