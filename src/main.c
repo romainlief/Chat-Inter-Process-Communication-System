@@ -72,7 +72,10 @@ int main(int argc, char* argv[]) {
    strcat(fifo_dir2, "-");
    strcat(fifo_dir2, pseudo_utilisateur);
    strcat(fifo_dir2, ".chat");
+   
+   printf("%s\n", fifo_dir);
+   printf("%s\n", fifo_dir2);
+
 
    return 0;
 }
-
