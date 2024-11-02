@@ -49,6 +49,10 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
    return 0;
 }
 
+void test() {
+   printf("Test\n");
+}
+
 int main(int argc, char* argv[]) {
    // Récupération des pseudos
    char* pseudo_utilisateur = argv[1];
