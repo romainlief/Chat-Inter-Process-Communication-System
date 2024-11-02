@@ -10,6 +10,16 @@
 #define MAX_PSEUDO_LEN 30
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
+   /**
+    * Vérifie les erreurs possibles lors de l'exécution du programme.
+    * argc : nombre d'arguments
+    * pseudo_utilisateur : pseudo de l'utilisateur
+    * pseudo_destinataire : pseudo du destinataire
+    * Retourne 0 si aucune erreur, sinon le code d'erreur.
+    * Retourne 1 : nombre d'arguments insuffisant
+    * Retourne 2 : pseudo trop long
+    * Retourne 3 : pseudo contient des caractères invalides
+    */
    // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)
    if (argc < 3) {
       fprintf(stderr, "chat pseudo_utilisateur pseudo_destinataire [--bot] [--manuel]\n");
@@ -35,7 +45,7 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
       fprintf(stderr, "Erreur : Pseudo invalide.\n");
       return 3;
    }
-   
+
    return 0;
 }
 
