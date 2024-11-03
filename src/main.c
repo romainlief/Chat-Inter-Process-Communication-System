@@ -21,11 +21,17 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
   * Retourne 1 : nombre d'arguments insuffisant
   * Retourne 2 : pseudo trop long
   * Retourne 3 : pseudo contient des caractères invalides
+  * Retourne 4 : trop d'arguments
   */
   // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)
   if (argc < 3) {
     fprintf(stderr, "chat pseudo_utilisateur pseudo_destinataire [--bot] [--manuel]\n");
     return 1;
+  }
+
+  if (argc > 5) {
+    fprintf(stderr, "Trop d'arguments\n");
+    return 4;
   }
 
   // Vérification de la longueur des pseudos
