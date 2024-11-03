@@ -8,8 +8,8 @@
 #include <fcntl.h>
 
 
-#define MAX_PSEUDO_LEN 30
-
+#define MAX_PSEUDO_LEN 30 //longueur max des pseudos dans les consignes
+#define Max_LEN_FIFO   72 //taille fifo max=72 (5 + 30 + 1 + 30 + 5 + 1)
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   /**
@@ -58,6 +58,11 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
 }
 
 void create_pipe(const char* pipe_path) {
+  /**
+   * Crée un pipe nommé.
+   * pipe_path : chemin du pipe
+   * Retourne void
+   */
   if (mkfifo(pipe_path, 0666) == -1) {
     perror("Erreur lors de la création du pipe");
     exit(1);
@@ -65,6 +70,11 @@ void create_pipe(const char* pipe_path) {
 }
 
 void signal_management(int signa) {
+  /**
+   * Gère les signaux SIGINT et SIGPIPE.
+   * signa : signal reçu
+   * Retourne void
+   */
    if (signa == SIGINT) {
       printf("Signal SIGINT reçu\n");
       //close(); pipe1
@@ -84,13 +94,13 @@ void signal_management(int signa) {
 // TODO paramètre optionnel (2.3 consignes)
 int main(int argc, char* argv[]) {
   // Récupération des pseudos
-  char* pseudo_utilisateur = argv[1];
+  char* pseudo_utilisateur  = argv[1];
   char* pseudo_destinataire = argv[2];
-  int bot_mode = 0;
+  int bot_mode    = 0;
   int manuel_mode = 0;
    
-  char fifo_sender[72] = "/tmp/";  //taille fifo_dir max=72 (5 + 30 + 1 + 30 + 5 + 1)
-  char fifo_receiver[72] = "/tmp/";  //taille fifo_dir max=72 (5 + 30 + 1 + 30 + 5 + 1)
+  char fifo_sender[Max_LEN_FIFO]   = "/tmp/";  
+  char fifo_receiver[Max_LEN_FIFO] = "/tmp/";  
 
    // Vérification des erreurs
   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
@@ -101,7 +111,7 @@ int main(int argc, char* argv[]) {
   // Gestion des options --bot et --manuel
   for (int i = 3; i < argc; i++) {
     if (strcmp(argv[i], "--bot") == 0) {
-      bot_mode = 1;
+      bot_mode    = 1;
     } else if (strcmp(argv[i], "--manuel") == 0) {
       manuel_mode = 1;
     } else {
@@ -132,7 +142,7 @@ int main(int argc, char* argv[]) {
   create_pipe(fifo_receiver);
 
   // Ouverture des pipes
-  int fd_fifo_sender = open(fifo_sender, O_WRONLY);
+  int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
   int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
   // Gestion des erreurs
   if (fd_fifo_sender == -1 || fd_fifo_receiver == -1) {
