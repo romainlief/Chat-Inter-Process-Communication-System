@@ -95,6 +95,20 @@ void signal_management(int signa) {
    }
 }
 
+void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2) {
+    /**
+     * Concatène les pseudos pour créer le chemin du pipe.
+     * fifo_path : chemin du pipe
+     * pseudo1 : pseudo de l'utilisateur
+     * pseudo2 : pseudo du destinataire
+     * Retourne void
+     */
+    strcpy(fifo_path, BASE_FIFO_PATH);
+    strcat(fifo_path, pseudo1);
+    strcat(fifo_path, "-");
+    strcat(fifo_path, pseudo2);
+    strcat(fifo_path, END_FIFO_PATH);
+}
 
 // TODO paramètre optionnel (2.3 consignes)
 int main(int argc, char* argv[]) {
@@ -126,15 +140,8 @@ int main(int argc, char* argv[]) {
   }
 
   // Création des deux path pipes en concaténant les pseudos
-  strcat(fifo_sender, pseudo_utilisateur);
-  strcat(fifo_sender, "-");
-  strcat(fifo_sender, pseudo_destinataire);
-  strcat(fifo_sender, END_FIFO_PATH);
-
-  strcat(fifo_receiver, pseudo_destinataire);
-  strcat(fifo_receiver, "-");
-  strcat(fifo_receiver, pseudo_utilisateur);
-  strcat(fifo_receiver, END_FIFO_PATH);
+  concatener_pipes(fifo_sender, pseudo_utilisateur, pseudo_destinataire);
+  concatener_pipes(fifo_receiver, pseudo_destinataire, pseudo_utilisateur);
 
   printf("%s\n", fifo_sender);
   printf("%s\n", fifo_receiver);

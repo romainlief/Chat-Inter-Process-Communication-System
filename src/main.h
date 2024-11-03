@@ -13,4 +13,6 @@ void create_pipe(const char* pipe_path);
 
 void signal_management(int signa);
 
+void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2);
+
 #endif 
