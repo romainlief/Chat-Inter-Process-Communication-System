@@ -10,6 +10,7 @@
 
 #define MAX_PSEUDO_LEN 30
 
+
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   /**
   * Vérifie les erreurs possibles lors de l'exécution du programme.
@@ -79,14 +80,28 @@ int main(int argc, char* argv[]) {
   // Récupération des pseudos
   char* pseudo_utilisateur = argv[1];
   char* pseudo_destinataire = argv[2];
+  int bot_mode = 0;
+  int manuel_mode = 0;
    
-  char fifo_sender[72] = "/tmp/";  //taille fifo_dir max=72
-  char fifo_receiver[72] = "/tmp/";  //taille fifo_dir max=72
+  char fifo_sender[72] = "/tmp/";  //taille fifo_dir max=72 (5 + 30 + 1 + 30 + 5 + 1)
+  char fifo_receiver[72] = "/tmp/";  //taille fifo_dir max=72 (5 + 30 + 1 + 30 + 5 + 1)
 
    // Vérification des erreurs
   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
   if (erreur != 0) {
     return erreur;
+  }
+
+  // Gestion des options --bot et --manuel
+  for (int i = 3; i < argc; i++) {
+    if (strcmp(argv[i], "--bot") == 0) {
+      bot_mode = 1;
+    } else if (strcmp(argv[i], "--manuel") == 0) {
+      manuel_mode = 1;
+    } else {
+      fprintf(stderr, "Option inconnue : %s\n", argv[i]);
+      return 1;
+    }
   }
 
   // Création des deux path pipes en concaténant les pseudos
@@ -104,6 +119,8 @@ int main(int argc, char* argv[]) {
   printf("%s\n", fifo_receiver);
   printf("pseudo_utilisateur : %s\n", pseudo_utilisateur);
   printf("pseudo_destinataire : %s\n", pseudo_destinataire);
+  printf("bot_mode : %d\n", bot_mode);
+  printf("manuel_mode : %d\n", manuel_mode);
 
   create_pipe(fifo_sender);
   create_pipe(fifo_receiver);
@@ -119,20 +136,21 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
   
-
-  // utiliser fork()
-
   signal(SIGINT, signal_management);
   signal(SIGPIPE, signal_management);
+
+  // utiliser fork()
 
   // scan for messages
 
     
   // TODO Supprimer les pipes (2.4 consignes)
 
-
+  // Fermeture des pipes
   unlink(fifo_sender);
   unlink(fifo_receiver);
+  close(fd_fifo_sender);
+  close(fd_fifo_receiver);
 
   return 0;
 }
