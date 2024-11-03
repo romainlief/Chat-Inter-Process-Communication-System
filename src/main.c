@@ -143,14 +143,13 @@ int main(int argc, char* argv[]) {
 
   // scan for messages
 
-    
   // TODO Supprimer les pipes (2.4 consignes)
 
   // Fermeture des pipes
-  unlink(fifo_sender);
-  unlink(fifo_receiver);
   close(fd_fifo_sender);
   close(fd_fifo_receiver);
+  unlink(fifo_sender);
+  unlink(fifo_receiver);
 
   return 0;
 }
