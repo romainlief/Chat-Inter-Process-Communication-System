@@ -5,6 +5,7 @@
 #include <string.h>
 
 #define MAX_PSEUDO_LEN 30
+#define Max_LEN_FIFO   72
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire);
 
