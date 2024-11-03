@@ -10,6 +10,11 @@
 
 #define MAX_PSEUDO_LEN 30 //longueur max des pseudos dans les consignes
 #define Max_LEN_FIFO   72 //taille fifo max=72 (5 + 30 + 1 + 30 + 5 + 1)
+#define BASE_FIFO_PATH "/tmp/" //chemin de base des pipes
+#define END_FIFO_PATH ".chat" //fin du chemin des pipes
+#define PARAM_BOT "--bot" //paramètre optionnel bot
+#define PARAM_MANUEL "--manuel" //paramètre optionnel manuel
+
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   /**
@@ -99,8 +104,8 @@ int main(int argc, char* argv[]) {
   int bot_mode    = 0;
   int manuel_mode = 0;
    
-  char fifo_sender[Max_LEN_FIFO]   = "/tmp/";  
-  char fifo_receiver[Max_LEN_FIFO] = "/tmp/";  
+  char fifo_sender[Max_LEN_FIFO]   = BASE_FIFO_PATH;  
+  char fifo_receiver[Max_LEN_FIFO] = BASE_FIFO_PATH;  
 
    // Vérification des erreurs
   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
@@ -110,9 +115,9 @@ int main(int argc, char* argv[]) {
 
   // Gestion des options --bot et --manuel
   for (int i = 3; i < argc; i++) {
-    if (strcmp(argv[i], "--bot") == 0) {
+    if (strcmp(argv[i], PARAM_BOT) == 0) {
       bot_mode    = 1;
-    } else if (strcmp(argv[i], "--manuel") == 0) {
+    } else if (strcmp(argv[i], PARAM_MANUEL) == 0) {
       manuel_mode = 1;
     } else {
       fprintf(stderr, "Option inconnue : %s\n", argv[i]);
@@ -124,12 +129,12 @@ int main(int argc, char* argv[]) {
   strcat(fifo_sender, pseudo_utilisateur);
   strcat(fifo_sender, "-");
   strcat(fifo_sender, pseudo_destinataire);
-  strcat(fifo_sender, ".chat");
+  strcat(fifo_sender, END_FIFO_PATH);
 
   strcat(fifo_receiver, pseudo_destinataire);
   strcat(fifo_receiver, "-");
   strcat(fifo_receiver, pseudo_utilisateur);
-  strcat(fifo_receiver, ".chat");
+  strcat(fifo_receiver, END_FIFO_PATH);
 
   printf("%s\n", fifo_sender);
   printf("%s\n", fifo_receiver);
