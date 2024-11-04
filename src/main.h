@@ -14,11 +14,11 @@
 // Constantes
 #define MAX_PSEUDO_LEN 30 // Longueur max des pseudos dans les consignes
 #define MAX_LEN_FIFO   72 // Taille fifo max=72 (5 + 30 + 1 + 30 + 5 + 1)
+#define BUFFER_SIZE 256 // Taille du buffer
 #define BASE_FIFO_PATH "/tmp/" // Chemin de base des pipes
 #define END_FIFO_PATH ".chat" // Fin du chemin des pipes
 #define PARAM_BOT "--bot" // Paramètre optionnel bot
 #define PARAM_MANUEL "--manuel" // Paramètre optionnel manuel
-#define BUFFER_SIZE 256
 // Déclarations des fonctions
 
 /**
