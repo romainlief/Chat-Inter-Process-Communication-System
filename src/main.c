@@ -112,7 +112,7 @@ void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2)
 
 int verification_param_optinnel(int argc, char* argv[]) {
   /**
-   * Vérifie les paramètres optionnels --bot et --manuel.
+   * Vérifie si les paramètres optionnels --bot et --manuel sont présent.
    * argc : nombre d'arguments
    * argv : tableau des arguments
    * Retourne 1 si l'option --bot est activée, 2 si l'option --manuel est activée, 0 sinon.

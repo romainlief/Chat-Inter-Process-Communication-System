@@ -13,6 +13,7 @@ LIBS    := -fsanitize=address,undefined
 
 SOURCES := $(shell find $(SRCDIR) -name "*.$(SFILES)")
 OBJECTS := $(patsubst $(SRCDIR)%.$(SFILES), $(OBJDIR)%.$(OFILES), $(SOURCES))
+DEPS    := $(OBJECTS:.o=.d)
 
 ALLFILES := $(SOURCES)
 
@@ -23,8 +24,14 @@ all: $(EXE)
 $(EXE): $(OBJECTS)
 	$(CC) $^ -o $@ $(LIBS)
 
-$(OBJDIR)%$(OFILES): $(SRCDIR)%$(SFILES)
+$(OBJDIR)%.$(OFILES): $(SRCDIR)%.$(SFILES)
 	$(CC) $(CFLAGS) $< -c -o $@
 
+-include $(DEPS)
+
+$(OBJDIR)%.d: $(SRCDIR)%.$(SFILES)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -MM $< -MF $@ -MT $(@:.d=.o)
+
 clean:
-	@rm -f $(OBJECTS) $(EXE)
+	@rm -f $(OBJECTS) $(EXE) $(DEPS)
