@@ -35,7 +35,7 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
   }
 
   if (argc > 5) {
-    fprintf(stderr, "Trop d'arguments\n");
+    fprintf(stderr, "Erreur: Trop d'arguments\n");
     return 4;
   }
 
