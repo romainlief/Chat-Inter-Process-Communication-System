@@ -1,23 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include "main.h"
 
-
-#define MAX_PSEUDO_LEN 30 //longueur max des pseudos dans les consignes
-#define MAX_LEN_FIFO   72 //taille fifo max=72 (5 + 30 + 1 + 30 + 5 + 1)
-#define BASE_FIFO_PATH "/tmp/" //chemin de base des pipes
-#define END_FIFO_PATH ".chat" //fin du chemin des pipes
-#define PARAM_BOT "--bot" //paramètre optionnel bot
-#define PARAM_MANUEL "--manuel" //paramètre optionnel manuel
-
+// Variables globales
 int fd_fifo_sender = -1; //descripteur de fichier du pipe d'envoi
 int fd_fifo_receiver = -1; //descripteur de fichier du pipe de réception
 
+// Fonctions
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   /**
   * Vérifie les erreurs possibles lors de l'exécution du programme.
@@ -138,6 +125,7 @@ void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* man
 }
 
 // TODO paramètre optionnel (2.3 consignes)
+// Fonction Main
 int main(int argc, char* argv[]) {
 
   // Récupération des pseudos
