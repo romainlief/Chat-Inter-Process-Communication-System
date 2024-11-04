@@ -1,11 +1,6 @@
 #include "main.h"
 
 
-// Variables globales
-int fd_fifo_sender = -1; //descripteur de fichier du pipe d'envoi
-int fd_fifo_receiver = -1; //descripteur de fichier du pipe de réception
-
-// Fonctions
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   /**
   * Vérifie les erreurs possibles lors de l'exécution du programme.
@@ -59,8 +54,9 @@ void create_pipe(const char* pipe_path) {
    * Retourne void
    */
   if (mkfifo(pipe_path, 0666) == -1) {
-    perror("Erreur lors de la création du pipe");   // ---------- ICI
+    // perror("Erreur lors de la création du pipe");
     // exit(1);
+    printf("PIPE DEJA EXISTANR\n");
   }
 }
 
@@ -70,14 +66,19 @@ void signal_management(int signa) {
    * signa : signal reçu
    * Retourne void
    */
-  if (signa == SIGINT || signa == SIGPIPE) {
-    printf("Signal reçu : %d\n", signa);
-    if (fd_fifo_sender != -1) close(fd_fifo_sender); // Fermer le pipe d'envoi
-    if (fd_fifo_receiver != -1) close(fd_fifo_receiver); // Fermer le pipe de réception
-    unlink(BASE_FIFO_PATH "pseudo1-pseudo2" END_FIFO_PATH);
-    unlink(BASE_FIFO_PATH "pseudo2-pseudo1" END_FIFO_PATH);
-    exit(0);
-    }
+   if (signa == SIGINT) {
+      printf("Signal SIGINT reçu\n");
+      //close(); pipe1
+      //close(); pipe2
+      exit(0);
+   }  
+   else if (signa == SIGPIPE)
+   {
+      printf("Signal SIGPIPE reçu\n");
+      //close(); pipe1
+      //close(); pipe2
+      exit(1);
+   }
 }
 
 void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2) {
@@ -126,8 +127,8 @@ void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* man
   }
 }
 
+
 // TODO paramètre optionnel (2.3 consignes)
-// Fonction Main
 int main(int argc, char* argv[]) {
 
   // Récupération des pseudos
@@ -155,6 +156,7 @@ int main(int argc, char* argv[]) {
 
   printf("%s\n", fifo_sender);
   printf("%s\n", fifo_receiver);
+
   printf("pseudo_utilisateur : %s\n", pseudo_utilisateur);
   printf("pseudo_destinataire : %s\n", pseudo_destinataire);
 
@@ -162,62 +164,67 @@ int main(int argc, char* argv[]) {
   create_pipe(fifo_receiver);
 
   // Ouverture des pipes
-  int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
-  int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
-
-   // Gestion des erreurs
-  if (fd_fifo_sender == -1 || fd_fifo_receiver == -1) {
-    perror("Erreur lors de l'ouverture des pipes");
-    close(fd_fifo_sender);
-    close(fd_fifo_receiver);
-    unlink(fifo_sender); //supprimer les pipes
-    unlink(fifo_receiver);
-    exit(1);
-  }
-  // Gestion des signaux
-  signal(SIGINT, signal_management);
-  signal(SIGPIPE, signal_management);
-
 
   char buffer[256];
   pid_t fork_return = fork();
-  if (fork_return == -1){
-    perror("Erreur lors de la création du processus fils");
-    exit(1);
-  }
 
-  if(fork_return > 0){  // père
+  if(fork_return > 0){
     
+    int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
+    int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
 
     while (fgets(buffer, sizeof(buffer), stdin) != NULL){
 
-      write(fd_fifo_sender, buffer, sizeof(buffer)); // Ecriture sur fifo_sender
+      write(fd_fifo_sender, buffer, sizeof(buffer)); 
 
     }
 
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
 
-  } else {  // fils
+  } else {
     int fd_fifo_sender   = open(fifo_sender, O_RDONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
     
     while (read(fd_fifo_receiver, buffer, sizeof(buffer)) > 0){
       
-      printf("[%s]: %s",pseudo_destinataire ,buffer);  // Lecture sur fifo_receiver
+      printf("[%s]: %s",pseudo_destinataire ,buffer);
 
     }
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
-
   }
+
+
+
+  // int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
+  // int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
+  
+  
+  
+  // Gestion des erreurs
+  
+  
+  
+  // if (fd_fifo_sender == -1 || fd_fifo_receiver == -1) {
+  //   perror("Erreur lors de l'ouverture des pipes");
+  //   unlink(fifo_sender); //supprimer les pipes
+  //   unlink(fifo_receiver);
+  //   exit(1);
+  // }
+  
+  signal(SIGINT, signal_management);
+  signal(SIGPIPE, signal_management);
+
+  // utiliser fork()
 
   // scan for messages
 
   // TODO Supprimer les pipes (2.4 consignes)
 
   // Fermeture des pipes
-  
+
+
   unlink(fifo_sender);
   unlink(fifo_receiver);
 
