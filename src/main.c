@@ -73,10 +73,11 @@ void signal_management(int signa) {
     printf("Signal reçu : %d\n", signa);
     if (fd_fifo_sender != -1) close(fd_fifo_sender); // Fermer le pipe d'envoi
     if (fd_fifo_receiver != -1) close(fd_fifo_receiver); // Fermer le pipe de réception
+    unlink(BASE_FIFO_PATH "pseudo1-pseudo2" END_FIFO_PATH);
+    unlink(BASE_FIFO_PATH "pseudo2-pseudo1" END_FIFO_PATH);
     exit(0);
     }
 }
-
 
 void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2) {
     /**
@@ -156,14 +157,36 @@ int main(int argc, char* argv[]) {
   printf("pseudo_utilisateur : %s\n", pseudo_utilisateur);
   printf("pseudo_destinataire : %s\n", pseudo_destinataire);
 
+  create_pipe(fifo_sender);
+  create_pipe(fifo_receiver);
+
+  // Ouverture des pipes
+  int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
+  int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
+
+   // Gestion des erreurs
+  if (fd_fifo_sender == -1 || fd_fifo_receiver == -1) {
+    perror("Erreur lors de l'ouverture des pipes");
+    close(fd_fifo_sender);
+    close(fd_fifo_receiver);
+    unlink(fifo_sender); //supprimer les pipes
+    unlink(fifo_receiver);
+    exit(1);
+  }
+  // Gestion des signaux
+  signal(SIGINT, signal_management);
+  signal(SIGPIPE, signal_management);
+
 
   char buffer[256];
   pid_t fork_return = fork();
+  if (fork_return == -1){
+    perror("Erreur lors de la création du processus fils");
+    exit(1);
+  }
 
   if(fork_return > 0){  // père
     
-    int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
-    int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
 
     while (fgets(buffer, sizeof(buffer), stdin) != NULL){
 
@@ -187,22 +210,6 @@ int main(int argc, char* argv[]) {
     close(fd_fifo_receiver);
 
   }
-
-  
-  // Gestion des erreurs
-  if (fd_fifo_sender == -1 || fd_fifo_receiver == -1) {
-    perror("Erreur lors de l'ouverture des pipes");
-    close(fd_fifo_sender);
-    close(fd_fifo_receiver);
-    unlink(fifo_sender); //supprimer les pipes
-    unlink(fifo_receiver);
-    exit(1);
-  }
-  
-  signal(SIGINT, signal_management);
-  signal(SIGPIPE, signal_management);
-
-  // utiliser fork()
 
   // scan for messages
 
