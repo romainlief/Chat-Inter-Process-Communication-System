@@ -2,17 +2,6 @@
 
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
-  /**
-  * Vérifie les erreurs possibles lors de l'exécution du programme.
-  * argc : nombre d'arguments
-  * pseudo_utilisateur : pseudo de l'utilisateur
-  * pseudo_destinataire : pseudo du destinataire
-  * Retourne 0 si aucune erreur, sinon le code d'erreur.
-  * Retourne 1 : nombre d'arguments insuffisant
-  * Retourne 2 : pseudo trop long
-  * Retourne 3 : pseudo contient des caractères invalides
-  * Retourne 4 : trop d'arguments
-  */
   // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)
   if (argc < 3) {
     fprintf(stderr, "chat pseudo_utilisateur pseudo_destinataire [--bot] [--manuel]\n");
@@ -48,11 +37,6 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
 }
 
 void create_pipe(const char* pipe_path) {
-  /**
-   * Crée un pipe nommé.
-   * pipe_path : chemin du pipe
-   * Retourne void
-   */
   if (mkfifo(pipe_path, 0666) == -1) {
     // perror("Erreur lors de la création du pipe");
     // exit(1);
@@ -61,34 +45,22 @@ void create_pipe(const char* pipe_path) {
 }
 
 void signal_management(int signa) {
-  /**
-   * Gère les signaux SIGINT et SIGPIPE.
-   * signa : signal reçu
-   * Retourne void
-   */
    if (signa == SIGINT) {
       printf("Signal SIGINT reçu\n");
-      //close(); pipe1
-      //close(); pipe2
+      // close(pipe1);
+      // close(pipe2);
       exit(0);
    }  
    else if (signa == SIGPIPE)
    {
       printf("Signal SIGPIPE reçu\n");
-      //close(); pipe1
-      //close(); pipe2
+      // close(pipe1);
+      // close(pipe2);
       exit(1);
    }
 }
 
 void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2) {
-    /**
-     * Concatène les pseudos pour créer le chemin du pipe.
-     * fifo_path : chemin du pipe
-     * pseudo1 : pseudo de l'utilisateur
-     * pseudo2 : pseudo du destinataire
-     * Retourne void
-     */
     strcpy(fifo_path, BASE_FIFO_PATH);
     strcat(fifo_path, pseudo1);
     strcat(fifo_path, "-");
@@ -97,14 +69,7 @@ void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2)
 }
 
 void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* manuel_mode) {
-  /**
-   * Vérifie si les paramètres optionnels --bot et --manuel sont présent et si d'autres paramètres sont inconnus renvoie une erreur.
-   * argc : nombre d'arguments
-   * argv : tableau des arguments
-   * bot_mode : pointeur vers la variable bot_mode
-   * manuel_mode : pointeur vers la variable manuel_mode
-   * Retourne void
-   */
+
   *bot_mode    = 0;
   *manuel_mode = 0;
 
@@ -148,6 +113,13 @@ int main(int argc, char* argv[]) {
 
   // Gestion des options --bot et --manuel
   verification_param_optinnel(argc, argv, &bot_mode, &manuel_mode);
+  //if (bot_mode == 1) {
+    // TODO bot
+  //}
+
+  //if (manuel_mode == 1) {
+    // TODO manuel
+  //}
 
 
   // Création des deux path pipes en concaténant les pseudos
@@ -165,7 +137,7 @@ int main(int argc, char* argv[]) {
 
   // Ouverture des pipes
 
-  char buffer[256];
+  char buffer[BUFFER_SIZE];
   pid_t fork_return = fork();
 
   if(fork_return > 0){
@@ -174,37 +146,25 @@ int main(int argc, char* argv[]) {
     int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
 
     while (fgets(buffer, sizeof(buffer), stdin) != NULL){
-
       write(fd_fifo_sender, buffer, sizeof(buffer)); 
-
     }
 
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
 
   } else {
+
     int fd_fifo_sender   = open(fifo_sender, O_RDONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
     
     while (read(fd_fifo_receiver, buffer, sizeof(buffer)) > 0){
-      
       printf("[%s]: %s",pseudo_destinataire ,buffer);
 
     }
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
   }
-
-
-
-  // int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
-  // int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
-  
-  
-  
-  // Gestion des erreurs
-  
-  
+    
   
   // if (fd_fifo_sender == -1 || fd_fifo_receiver == -1) {
   //   perror("Erreur lors de l'ouverture des pipes");
@@ -215,14 +175,6 @@ int main(int argc, char* argv[]) {
   
   signal(SIGINT, signal_management);
   signal(SIGPIPE, signal_management);
-
-  // utiliser fork()
-
-  // scan for messages
-
-  // TODO Supprimer les pipes (2.4 consignes)
-
-  // Fermeture des pipes
 
 
   unlink(fifo_sender);

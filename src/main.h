@@ -18,7 +18,7 @@
 #define END_FIFO_PATH ".chat" // Fin du chemin des pipes
 #define PARAM_BOT "--bot" // Paramètre optionnel bot
 #define PARAM_MANUEL "--manuel" // Paramètre optionnel manuel
-
+#define BUFFER_SIZE 256
 // Déclarations des fonctions
 
 /**
