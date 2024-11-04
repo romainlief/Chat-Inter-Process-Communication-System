@@ -15,6 +15,8 @@
 #define PARAM_BOT "--bot" //paramètre optionnel bot
 #define PARAM_MANUEL "--manuel" //paramètre optionnel manuel
 
+int fd_fifo_sender = -1; //descripteur de fichier du pipe d'envoi
+int fd_fifo_receiver = -1; //descripteur de fichier du pipe de réception
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   /**
@@ -80,20 +82,14 @@ void signal_management(int signa) {
    * signa : signal reçu
    * Retourne void
    */
-   if (signa == SIGINT) {
-      printf("Signal SIGINT reçu\n");
-      //close(); pipe1
-      //close(); pipe2
-      exit(0);
-   }  
-   else if (signa == SIGPIPE)
-   {
-      printf("Signal SIGPIPE reçu\n");
-      //close(); pipe1
-      //close(); pipe2
-      exit(1);
-   }
+  if (signa == SIGINT || signa == SIGPIPE) {
+    printf("Signal reçu : %d\n", signa);
+    if (fd_fifo_sender != -1) close(fd_fifo_sender); // Fermer le pipe d'envoi
+    if (fd_fifo_receiver != -1) close(fd_fifo_receiver); // Fermer le pipe de réception
+    exit(0);
+    }
 }
+
 
 void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2) {
     /**
@@ -176,11 +172,14 @@ int main(int argc, char* argv[]) {
   create_pipe(fifo_receiver);
 
   // Ouverture des pipes
-  int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
-  int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
+  fd_fifo_sender   = open(fifo_sender, O_WRONLY);
+  fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
+  
   // Gestion des erreurs
   if (fd_fifo_sender == -1 || fd_fifo_receiver == -1) {
     perror("Erreur lors de l'ouverture des pipes");
+    close(fd_fifo_sender);
+    close(fd_fifo_receiver);
     unlink(fifo_sender); //supprimer les pipes
     unlink(fifo_receiver);
     exit(1);
