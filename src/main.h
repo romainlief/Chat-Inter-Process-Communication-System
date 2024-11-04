@@ -15,6 +15,6 @@ void signal_management(int signa);
 
 void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2);
 
-int verification_param_optinnel(int argc, char* argv[]);
+void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* manuel_mode);
 
 #endif 

@@ -110,46 +110,48 @@ void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2)
     strcat(fifo_path, END_FIFO_PATH);
 }
 
-int verification_param_optinnel(int argc, char* argv[]) {
+void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* manuel_mode) {
   /**
-   * Vérifie si les paramètres optionnels --bot et --manuel sont présent.
+   * Vérifie si les paramètres optionnels --bot et --manuel sont présent et si d'autres paramètres sont inconnus renvoie une erreur.
    * argc : nombre d'arguments
    * argv : tableau des arguments
-   * Retourne 1 si l'option --bot est activée, 2 si l'option --manuel est activée, 0 sinon.
+   * bot_mode : pointeur vers la variable bot_mode
+   * manuel_mode : pointeur vers la variable manuel_mode
+   * Retourne void
    */
-  int bot_mode    = 0;
-  int manuel_mode = 0;
+  *bot_mode    = 0;
+  *manuel_mode = 0;
 
   for (int i = 3; i < argc; i++) {
     if (strcmp(argv[i], PARAM_BOT) == 0) {
-      bot_mode    = 1;
+      *bot_mode    = 1;
     } else if (strcmp(argv[i], PARAM_MANUEL) == 0) {
-      manuel_mode = 1;
+      *manuel_mode = 1;
     } else {
       fprintf(stderr, "Option inconnue : %s\n", argv[i]);
-      return 1;
+      exit(1);
     }
   }
 
-  if (bot_mode == 1) {
+  if (*bot_mode == 1) {
     printf("Mode bot activé\n");
-  } else if (manuel_mode == 1) {
+  }  
+  if (*manuel_mode == 1) {
     printf("Mode manuel activé\n");
   }
-
-  return 0;
 }
 
 // TODO paramètre optionnel (2.3 consignes)
 int main(int argc, char* argv[]) {
+
   // Récupération des pseudos
   char* pseudo_utilisateur  = argv[1];
   char* pseudo_destinataire = argv[2];
   int bot_mode    = 0;
   int manuel_mode = 0;
    
-  char fifo_sender[MAX_LEN_FIFO]   = BASE_FIFO_PATH;  
-  char fifo_receiver[MAX_LEN_FIFO] = BASE_FIFO_PATH;  
+  char fifo_sender[MAX_LEN_FIFO];  
+  char fifo_receiver[MAX_LEN_FIFO];  
 
    // Vérification des erreurs
   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
@@ -158,14 +160,8 @@ int main(int argc, char* argv[]) {
   }
 
   // Gestion des options --bot et --manuel
-  verification_param_optinnel(argc, argv);
+  verification_param_optinnel(argc, argv, &bot_mode, &manuel_mode);
 
-
-  if (bot_mode == 1) {
-    printf("Mode bot activé\n");
-  } else if (manuel_mode == 1) {
-    printf("Mode manuel activé\n");
-  }
 
   // Création des deux path pipes en concaténant les pseudos
   concatener_pipes(fifo_sender, pseudo_utilisateur, pseudo_destinataire);
