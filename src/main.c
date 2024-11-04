@@ -1,5 +1,6 @@
 #include "main.h"
 
+
 // Variables globales
 int fd_fifo_sender = -1; //descripteur de fichier du pipe d'envoi
 int fd_fifo_receiver = -1; //descripteur de fichier du pipe de réception
@@ -58,8 +59,8 @@ void create_pipe(const char* pipe_path) {
    * Retourne void
    */
   if (mkfifo(pipe_path, 0666) == -1) {
-    perror("Erreur lors de la création du pipe");
-    exit(1);
+    perror("Erreur lors de la création du pipe");   // ---------- ICI
+    // exit(1);
   }
 }
 
