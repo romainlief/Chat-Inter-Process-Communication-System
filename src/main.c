@@ -9,7 +9,7 @@
 
 
 #define MAX_PSEUDO_LEN 30 //longueur max des pseudos dans les consignes
-#define Max_LEN_FIFO   72 //taille fifo max=72 (5 + 30 + 1 + 30 + 5 + 1)
+#define MAX_LEN_FIFO   72 //taille fifo max=72 (5 + 30 + 1 + 30 + 5 + 1)
 #define BASE_FIFO_PATH "/tmp/" //chemin de base des pipes
 #define END_FIFO_PATH ".chat" //fin du chemin des pipes
 #define PARAM_BOT "--bot" //paramètre optionnel bot
@@ -110,24 +110,16 @@ void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2)
     strcat(fifo_path, END_FIFO_PATH);
 }
 
-// TODO paramètre optionnel (2.3 consignes)
-int main(int argc, char* argv[]) {
-  // Récupération des pseudos
-  char* pseudo_utilisateur  = argv[1];
-  char* pseudo_destinataire = argv[2];
+int verification_param_optinnel(int argc, char* argv[]) {
+  /**
+   * Vérifie les paramètres optionnels --bot et --manuel.
+   * argc : nombre d'arguments
+   * argv : tableau des arguments
+   * Retourne 1 si l'option --bot est activée, 2 si l'option --manuel est activée, 0 sinon.
+   */
   int bot_mode    = 0;
   int manuel_mode = 0;
-   
-  char fifo_sender[Max_LEN_FIFO]   = BASE_FIFO_PATH;  
-  char fifo_receiver[Max_LEN_FIFO] = BASE_FIFO_PATH;  
 
-   // Vérification des erreurs
-  int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
-  if (erreur != 0) {
-    return erreur;
-  }
-
-  // Gestion des options --bot et --manuel
   for (int i = 3; i < argc; i++) {
     if (strcmp(argv[i], PARAM_BOT) == 0) {
       bot_mode    = 1;
@@ -139,6 +131,42 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  if (bot_mode == 1) {
+    printf("Mode bot activé\n");
+  } else if (manuel_mode == 1) {
+    printf("Mode manuel activé\n");
+  }
+
+  return 0;
+}
+
+// TODO paramètre optionnel (2.3 consignes)
+int main(int argc, char* argv[]) {
+  // Récupération des pseudos
+  char* pseudo_utilisateur  = argv[1];
+  char* pseudo_destinataire = argv[2];
+  int bot_mode    = 0;
+  int manuel_mode = 0;
+   
+  char fifo_sender[MAX_LEN_FIFO]   = BASE_FIFO_PATH;  
+  char fifo_receiver[MAX_LEN_FIFO] = BASE_FIFO_PATH;  
+
+   // Vérification des erreurs
+  int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
+  if (erreur != 0) {
+    return erreur;
+  }
+
+  // Gestion des options --bot et --manuel
+  verification_param_optinnel(argc, argv);
+
+
+  if (bot_mode == 1) {
+    printf("Mode bot activé\n");
+  } else if (manuel_mode == 1) {
+    printf("Mode manuel activé\n");
+  }
+
   // Création des deux path pipes en concaténant les pseudos
   concatener_pipes(fifo_sender, pseudo_utilisateur, pseudo_destinataire);
   concatener_pipes(fifo_receiver, pseudo_destinataire, pseudo_utilisateur);
@@ -147,8 +175,6 @@ int main(int argc, char* argv[]) {
   printf("%s\n", fifo_receiver);
   printf("pseudo_utilisateur : %s\n", pseudo_utilisateur);
   printf("pseudo_destinataire : %s\n", pseudo_destinataire);
-  printf("bot_mode : %d\n", bot_mode);
-  printf("manuel_mode : %d\n", manuel_mode);
 
   create_pipe(fifo_sender);
   create_pipe(fifo_receiver);
