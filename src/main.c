@@ -156,12 +156,38 @@ int main(int argc, char* argv[]) {
   printf("pseudo_utilisateur : %s\n", pseudo_utilisateur);
   printf("pseudo_destinataire : %s\n", pseudo_destinataire);
 
-  create_pipe(fifo_sender);
-  create_pipe(fifo_receiver);
 
-  // Ouverture des pipes
-  fd_fifo_sender   = open(fifo_sender, O_WRONLY);
-  fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
+  char buffer[256];
+  pid_t fork_return = fork();
+
+  if(fork_return > 0){  // père
+    
+    int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
+    int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
+
+    while (fgets(buffer, sizeof(buffer), stdin) != NULL){
+
+      write(fd_fifo_sender, buffer, sizeof(buffer)); // Ecriture sur fifo_sender
+
+    }
+
+    close(fd_fifo_sender);
+    close(fd_fifo_receiver);
+
+  } else {  // fils
+    int fd_fifo_sender   = open(fifo_sender, O_RDONLY);
+    int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
+    
+    while (read(fd_fifo_receiver, buffer, sizeof(buffer)) > 0){
+      
+      printf("[%s]: %s",pseudo_destinataire ,buffer);  // Lecture sur fifo_receiver
+
+    }
+    close(fd_fifo_sender);
+    close(fd_fifo_receiver);
+
+  }
+
   
   // Gestion des erreurs
   if (fd_fifo_sender == -1 || fd_fifo_receiver == -1) {
@@ -183,8 +209,7 @@ int main(int argc, char* argv[]) {
   // TODO Supprimer les pipes (2.4 consignes)
 
   // Fermeture des pipes
-  close(fd_fifo_sender);
-  close(fd_fifo_receiver);
+  
   unlink(fifo_sender);
   unlink(fifo_receiver);
 
