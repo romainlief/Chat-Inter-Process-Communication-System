@@ -1,5 +1,20 @@
 #include "main.h"
 
+/*
+2.2 => terminé
+2.3.1 => terminé
+2.3.2 => terminé
+2.3.3 => mode manuel à faire
+2.4 => suppression à améliorer
+2.5 => terminé sauf mode manuel
+2.6 => mémoire partagée en cours
+2.7 => minable, à refaire   
+2.8.1 => terminé
+2.8.2 => à faire
+2.8.3 => à faire
+2.8.4 => à faire
+*/
+
 char fifo_sender[MAX_LEN_FIFO];  
 char fifo_receiver[MAX_LEN_FIFO]; 
 int verif = 0; 
@@ -15,7 +30,7 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
 
   if (argc > 5) {
     fprintf(stderr, "Erreur: Trop d'arguments\n");
-    return 4;
+    return 5;
   }
 
   // Vérification de la longueur des pseudos
@@ -135,10 +150,10 @@ int main(int argc, char* argv[]) {
   printf("pseudo_utilisateur : %s\n", pseudo_utilisateur);
   printf("pseudo_destinataire : %s\n", pseudo_destinataire);
 
+  // Ouverture des pipes
   create_pipe(fifo_sender);
   create_pipe(fifo_receiver);
 
-  // Ouverture des pipes
 
   char buffer[BUFFER_SIZE];
   pid_t fork_return = fork();
@@ -150,16 +165,11 @@ int main(int argc, char* argv[]) {
 
 
     while ((fd_fifo_receiver != -1) && (fgets(buffer, sizeof(buffer), stdin) != NULL)){
-      if (bot_mode == 1) {
-        printf("[%s] %s",pseudo_utilisateur,buffer);
-      }
-      else {
+      if (!bot_mode) {
         printf("[\x1B[4m%s\x1B[0m] %s",pseudo_utilisateur,buffer);
       }
       write(fd_fifo_sender, buffer, sizeof(buffer)); 
       
-      // fd_fifo_sender   = open(fifo_sender, O_WRONLY);
-      // fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
     }
 
     close(fd_fifo_sender);
@@ -179,8 +189,6 @@ int main(int argc, char* argv[]) {
         printf("[\x1B[4m%s\x1B[0m]: %s",pseudo_destinataire ,buffer);
       }
       
-      // fd_fifo_sender   = open(fifo_sender, O_RDONLY);
-      // fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
     }
     close(fd_fifo_sender);
@@ -188,15 +196,12 @@ int main(int argc, char* argv[]) {
   }
     
   printf("Interuption");
-  // if (fd_fifo_sender == -1 || fd_fifo_receiver == -1) {
-  //   perror("Erreur lors de l'ouverture des pipes");
-  //   unlink(fifo_sender); //supprimer les pipes
-  //   unlink(fifo_receiver);
-  //   exit(1);
-  // }
+  
   
   unlink(fifo_sender);
   unlink(fifo_receiver);
 
   return 0;
 }
+
+
