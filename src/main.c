@@ -126,10 +126,7 @@ int main(int argc, char* argv[]) {
   signal(SIGINT, signal_management);
   signal(SIGPIPE, signal_management);
    
-  // char fifo_sender[MAX_LEN_FIFO];  
-  // char fifo_receiver[MAX_LEN_FIFO];  
-
-   // Vérification des erreurs
+  // Vérification des erreurs
   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
   if (erreur != 0) {
     return erreur;
@@ -203,5 +200,3 @@ int main(int argc, char* argv[]) {
 
   return 0;
 }
-
-
