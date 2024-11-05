@@ -3,6 +3,8 @@
 char fifo_sender[MAX_LEN_FIFO];  
 char fifo_receiver[MAX_LEN_FIFO]; 
 int verif = 0; 
+int bot_mode    = 0;
+int manuel_mode = 0;
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)
@@ -104,8 +106,7 @@ int main(int argc, char* argv[]) {
   // Récupération des pseudos
   char* pseudo_utilisateur  = argv[1];
   char* pseudo_destinataire = argv[2];
-  int bot_mode    = 0;
-  int manuel_mode = 0;
+  
 
   signal(SIGINT, signal_management);
   signal(SIGPIPE, signal_management);
@@ -149,6 +150,12 @@ int main(int argc, char* argv[]) {
 
 
     while ((fd_fifo_receiver != -1) && (fgets(buffer, sizeof(buffer), stdin) != NULL)){
+      if (bot_mode == 1) {
+        printf("[%s] %s",pseudo_utilisateur,buffer);
+      }
+      else {
+        printf("[\x1B[4m%s\x1B[0m] %s",pseudo_utilisateur,buffer);
+      }
       write(fd_fifo_sender, buffer, sizeof(buffer)); 
       
       // fd_fifo_sender   = open(fifo_sender, O_WRONLY);
