@@ -10,7 +10,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 // Constantes
 #define MAX_PSEUDO_LEN 30 // Longueur max des pseudos dans les consignes

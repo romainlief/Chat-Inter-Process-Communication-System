@@ -121,13 +121,7 @@ int main(int argc, char* argv[]) {
 
   // Gestion des options --bot et --manuel
   verification_param_optinnel(argc, argv, &bot_mode, &manuel_mode);
-  //if (bot_mode == 1) {
-    // TODO bot
-  //}
-
-  //if (manuel_mode == 1) {
-    // TODO manuel
-  //}
+  
 
 
   // Création des deux path pipes en concaténant les pseudos
@@ -155,7 +149,6 @@ int main(int argc, char* argv[]) {
 
 
     while ((fd_fifo_receiver != -1) && (fgets(buffer, sizeof(buffer), stdin) != NULL)){
-      printf("ici");
       write(fd_fifo_sender, buffer, sizeof(buffer)); 
       
       // fd_fifo_sender   = open(fifo_sender, O_WRONLY);
@@ -172,13 +165,17 @@ int main(int argc, char* argv[]) {
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
     
     while ((fd_fifo_receiver != -1) && (read(fd_fifo_receiver, buffer, sizeof(buffer)) > 0) ){
-      printf("[%s]: %s",pseudo_destinataire ,buffer);
+      if (bot_mode == 1) {
+        printf("[%s]: %s",pseudo_destinataire ,buffer);
+      }
+      else {
+        printf("[\x1B[4m%s\x1B[0m]: %s",pseudo_destinataire ,buffer);
+      }
       
       // fd_fifo_sender   = open(fifo_sender, O_RDONLY);
       // fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
     }
-    printf("ici");
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
   }
