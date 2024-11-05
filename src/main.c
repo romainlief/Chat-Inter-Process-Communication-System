@@ -1,5 +1,8 @@
 #include "main.h"
 
+char fifo_sender[MAX_LEN_FIFO];  
+char fifo_receiver[MAX_LEN_FIFO]; 
+int verif = 0; 
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)
@@ -38,18 +41,19 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
 
 void create_pipe(const char* pipe_path) {
   if (mkfifo(pipe_path, 0666) == -1) {
-    // perror("Erreur lors de la création du pipe");
-    // exit(1);
-    printf("PIPE DEJA EXISTANR\n");
+    printf("PIPE DEJA EXISTANT\n"); // TODO bonne pratique
   }
 }
 
 void signal_management(int signa) {
    if (signa == SIGINT) {
       printf("Signal SIGINT reçu\n");
+      unlink(fifo_sender);
+      unlink(fifo_receiver);
+      verif = 1;
+      exit(1);
       // close(pipe1);
       // close(pipe2);
-      exit(0);
    }  
    else if (signa == SIGPIPE)
    {
@@ -58,6 +62,7 @@ void signal_management(int signa) {
       // close(pipe2);
       exit(1);
    }
+   return;
 }
 
 void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2) {
@@ -101,9 +106,12 @@ int main(int argc, char* argv[]) {
   char* pseudo_destinataire = argv[2];
   int bot_mode    = 0;
   int manuel_mode = 0;
+
+  signal(SIGINT, signal_management);
+  signal(SIGPIPE, signal_management);
    
-  char fifo_sender[MAX_LEN_FIFO];  
-  char fifo_receiver[MAX_LEN_FIFO];  
+  // char fifo_sender[MAX_LEN_FIFO];  
+  // char fifo_receiver[MAX_LEN_FIFO];  
 
    // Vérification des erreurs
   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
@@ -145,27 +153,37 @@ int main(int argc, char* argv[]) {
     int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
 
-    while (fgets(buffer, sizeof(buffer), stdin) != NULL){
+
+    while ((fd_fifo_receiver != -1) && (fgets(buffer, sizeof(buffer), stdin) != NULL)){
+      printf("ici");
       write(fd_fifo_sender, buffer, sizeof(buffer)); 
+      
+      // fd_fifo_sender   = open(fifo_sender, O_WRONLY);
+      // fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
     }
 
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
+
 
   } else {
 
     int fd_fifo_sender   = open(fifo_sender, O_RDONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
     
-    while (read(fd_fifo_receiver, buffer, sizeof(buffer)) > 0){
+    while ((fd_fifo_receiver != -1) && (read(fd_fifo_receiver, buffer, sizeof(buffer)) > 0) ){
       printf("[%s]: %s",pseudo_destinataire ,buffer);
+      
+      // fd_fifo_sender   = open(fifo_sender, O_RDONLY);
+      // fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
     }
+    printf("ici");
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
   }
     
-  
+  printf("Interuption");
   // if (fd_fifo_sender == -1 || fd_fifo_receiver == -1) {
   //   perror("Erreur lors de l'ouverture des pipes");
   //   unlink(fifo_sender); //supprimer les pipes
@@ -173,10 +191,6 @@ int main(int argc, char* argv[]) {
   //   exit(1);
   // }
   
-  signal(SIGINT, signal_management);
-  signal(SIGPIPE, signal_management);
-
-
   unlink(fifo_sender);
   unlink(fifo_receiver);
 

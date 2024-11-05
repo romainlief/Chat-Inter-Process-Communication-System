@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+
 // Constantes
 #define MAX_PSEUDO_LEN 30 // Longueur max des pseudos dans les consignes
 #define MAX_LEN_FIFO   72 // Taille fifo max=72 (5 + 30 + 1 + 30 + 5 + 1)
