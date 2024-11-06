@@ -22,7 +22,27 @@
 #define PARAM_BOT "--bot" // Paramètre optionnel bot
 #define PARAM_MANUEL "--manuel" // Paramètre optionnel manuel
 
+
+typedef struct{
+    int offset;
+    char data[4096];
+} sharedMemo;
+
+
 // Déclarations des fonctions
+
+sharedMemo* shared_memory_initializer();
+
+void clean_shared_memo(sharedMemo* memo);
+
+void write_shared(sharedMemo* memo, const char* str);
+
+void read_memo(sharedMemo* memo);
+
+char* get_LastString(sharedMemo* memo);
+
+
+
 /**
  * Vérifie les erreurs possibles lors de l'exécution du programme.
  * @param argc Nombre d'arguments

@@ -15,11 +15,13 @@
 2.8.4 => à faire
 */
 
-char fifo_sender[MAX_LEN_FIFO];  
-char fifo_receiver[MAX_LEN_FIFO]; 
-int verif = 0; 
-int bot_mode    = 0;
-int manuel_mode = 0;
+
+
+char fifo_sender[MAX_LEN_FIFO];  // variable pour le chemin du pipe sender
+char fifo_receiver[MAX_LEN_FIFO]; // variable pour le chemin du pipe receiver
+int verif = 0; // variable pour la gestion des signaux
+int bot_mode    = 0; // 0 = normal, 1 = mode bot
+int manuel_mode = 0; // 0 = normal, 1 = mode manuel
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)
@@ -63,20 +65,16 @@ void create_pipe(const char* pipe_path) {
 }
 
 void signal_management(int signa) {
-   if (signa == SIGINT) {
+   if (signa == SIGINT) { // si le signal reçu est SIGINT
       printf("Signal SIGINT reçu\n");
-      unlink(fifo_sender);
-      unlink(fifo_receiver);
+      unlink(fifo_sender); // suppression des pipes
+      unlink(fifo_receiver); // suppression des pipes
       verif = 1;
-      exit(1);
-      // close(pipe1);
-      // close(pipe2);
+      exit(4); // sortie du programme
    }  
-   else if (signa == SIGPIPE)
+   else if (signa == SIGPIPE) // si le signal reçu est SIGPIPE
    {
       printf("Signal SIGPIPE reçu\n");
-      // close(pipe1);
-      // close(pipe2);
       exit(1);
    }
    return;
@@ -92,9 +90,10 @@ void concatener_pipes(char* fifo_path, const char* pseudo1, const char* pseudo2)
 
 void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* manuel_mode) {
 
-  *bot_mode    = 0;
-  *manuel_mode = 0;
+  *bot_mode    = 0; // pointeur vers la variable bot_mode
+  *manuel_mode = 0; // pointeur vers la variable manuel_mode
 
+  // boucle qui parcourt les arguments de 3 à argc et si l'argument est --bot et/ou --manuel, on active le mode correspondant
   for (int i = 3; i < argc; i++) {
     if (strcmp(argv[i], PARAM_BOT) == 0) {
       *bot_mode    = 1;
@@ -119,12 +118,12 @@ void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* man
 int main(int argc, char* argv[]) {
 
   // Récupération des pseudos
-  char* pseudo_utilisateur  = argv[1];
-  char* pseudo_destinataire = argv[2];
+  char* pseudo_utilisateur  = argv[1]; // pseudo de l'utilisateur
+  char* pseudo_destinataire = argv[2]; // pseudo du destinataire
   
 
-  signal(SIGINT, signal_management);
-  signal(SIGPIPE, signal_management);
+  signal(SIGINT, signal_management); // Gestion des signaux
+  signal(SIGPIPE, signal_management); // Gestion des signaux
    
   // Vérification des erreurs
   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
@@ -138,7 +137,7 @@ int main(int argc, char* argv[]) {
 
 
   // Création des deux path pipes en concaténant les pseudos
-  concatener_pipes(fifo_sender, pseudo_utilisateur, pseudo_destinataire);
+  concatener_pipes(fifo_sender, pseudo_utilisateur, pseudo_destinataire); 
   concatener_pipes(fifo_receiver, pseudo_destinataire, pseudo_utilisateur);
 
   printf("%s\n", fifo_sender);
@@ -152,33 +151,33 @@ int main(int argc, char* argv[]) {
   create_pipe(fifo_receiver);
 
 
-  char buffer[BUFFER_SIZE];
-  pid_t fork_return = fork();
+  char buffer[BUFFER_SIZE]; // buffer pour les messages
+  pid_t fork_return = fork(); // création du processus fils
 
-  if(fork_return > 0){
+  if(fork_return > 0){ // processus père
     
-    int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
-    int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
+    int fd_fifo_sender   = open(fifo_sender, O_WRONLY); // ouverture du pipe sender en écriture
+    int fd_fifo_receiver = open(fifo_receiver, O_WRONLY); // ouverture du pipe receiver en écriture
 
 
-    while ((fd_fifo_receiver != -1) && (fgets(buffer, sizeof(buffer), stdin) != NULL)){
-      if (!bot_mode) {
+    while ((fd_fifo_receiver != -1) && (fgets(buffer, sizeof(buffer), stdin) != NULL)) { // tant que le pipe receiver est ouvert et que l'utilisateur écrit un message
+      if (!bot_mode) { // si le mode bot n'est pas activé
         printf("[\x1B[4m%s\x1B[0m] %s",pseudo_utilisateur,buffer);
-      }
-      write(fd_fifo_sender, buffer, sizeof(buffer)); 
+      } 
+      write(fd_fifo_sender, buffer, sizeof(buffer));  // écriture du message dans le pipe sender
       
     }
 
-    close(fd_fifo_sender);
-    close(fd_fifo_receiver);
+    close(fd_fifo_sender); // fermeture du pipe sender
+    close(fd_fifo_receiver); // fermeture du pipe receiver
 
 
   } else {
 
-    int fd_fifo_sender   = open(fifo_sender, O_RDONLY);
-    int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
+    int fd_fifo_sender   = open(fifo_sender, O_RDONLY); // ouverture du pipe sender en lecture
+    int fd_fifo_receiver = open(fifo_receiver, O_RDONLY); // ouverture du pipe receiver en lecture
     
-    while ((fd_fifo_receiver != -1) && (read(fd_fifo_receiver, buffer, sizeof(buffer)) > 0) ){
+    while ((fd_fifo_receiver != -1) && (read(fd_fifo_receiver, buffer, sizeof(buffer)) > 0)){ // tant que le pipe receiver est ouvert et que le pipe sender envoie un message
       if (bot_mode == 1) {
         printf("[%s]: %s",pseudo_destinataire ,buffer);
       }
@@ -188,15 +187,16 @@ int main(int argc, char* argv[]) {
       
 
     }
-    close(fd_fifo_sender);
-    close(fd_fifo_receiver);
+    close(fd_fifo_sender); // fermeture du pipe sender
+    close(fd_fifo_receiver); // fermeture du pipe receiver
   }
-    
-  printf("Interuption");
+  
+  // TODO partie du code ou l'on ne passe jamais
+  printf("Interuption"); 
   
   
-  unlink(fifo_sender);
-  unlink(fifo_receiver);
+  unlink(fifo_sender); // suppression du pipe sender
+  unlink(fifo_receiver); // suppression du pipe receiver
 
   return 0;
 }
