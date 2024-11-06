@@ -12,6 +12,9 @@
 #include <fcntl.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <signal.h>
+#include <sys/mman.h>
+#include <errno.h>
 
 // Constantes
 #define MAX_PSEUDO_LEN 30 // Longueur max des pseudos dans les consignes
@@ -22,6 +25,9 @@
 #define PARAM_BOT "--bot" // Paramètre optionnel bot
 #define PARAM_MANUEL "--manuel" // Paramètre optionnel manuel
 
+
+// structures
+struct sigaction sa;
 
 typedef struct{
     int offset;
