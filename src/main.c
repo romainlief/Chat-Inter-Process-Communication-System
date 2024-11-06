@@ -17,11 +17,11 @@
 
 
 
-char fifo_sender[MAX_LEN_FIFO];  // variable pour le chemin du pipe sender
-char fifo_receiver[MAX_LEN_FIFO]; // variable pour le chemin du pipe receiver
-int bot_mode    = 0; // 0 = normal, 1 = mode bot
-int manuel_mode = 0; // 0 = normal, 1 = mode manuel
-int verif = 0;  // Variable modifiée par les signaux
+char fifo_sender[MAX_LEN_FIFO];  
+char fifo_receiver[MAX_LEN_FIFO]; 
+int bot_mode    = 0; 
+int manuel_mode = 0; 
+int verif = 0;  
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)

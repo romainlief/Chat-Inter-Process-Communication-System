@@ -34,6 +34,12 @@ typedef struct{
     char data[4096];
 } sharedMemo;
 
+// Variables globales
+extern char fifo_sender[MAX_LEN_FIFO]; // Chemin du pipe sender
+extern char fifo_receiver[MAX_LEN_FIFO]; // Chemin du pipe receiver
+extern int bot_mode; // 0 = normal, 1 = mode bot
+extern int manuel_mode; // 0 = normal, 1 = mode manuel
+extern int verif; // Variable modifiée par les signaux
 
 // Déclarations des fonctions
 
