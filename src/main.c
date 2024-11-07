@@ -4,15 +4,16 @@
 2.2 => terminé
 2.3.1 => terminé
 2.3.2 => terminé
-2.3.3 => mode manuel à faire => Controle C
-2.4 => suppression à améliorer
-2.5 => terminé sauf mode manuel
-2.6 => mémoire partagée en cours
-2.7 => minable, à refaire   
-2.8.1 => terminé
-2.8.2 => à faire
-2.8.3 => à faire
-2.8.4 => à faire
+2.3.3 => mode manuel à faire => Mémoire saturé
+2.4 => Terminé
+2.5 => terminé
+2.6 => Terminée
+2.7 => Affiner SIGINT et SIFPIPE 
+2.8.1 => terminé  
+2.8.2 => empecher le terminal 2 d'ecrire apres suppression pipe
+2.8.3 => terminer
+2.8.4 => à affiner
+
 */
 
 
