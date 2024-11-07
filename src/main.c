@@ -34,7 +34,7 @@ sharedMemo* shared_memory_initializer(){
     sharedMemo* memo = mmap(NULL, 4096, protection, visibility, fd, offset);
     
     // Starting adress of shared memory in RAM
-    printf("Pointer address: %p\n", memo);
+    printf("Pointer address: %p\n", (void*)memo);
     
     // Handle mmap failure properly
     if (memo == MAP_FAILED) {
@@ -53,7 +53,7 @@ void clean_shared_memo(sharedMemo* memo){
 }
 
 void write_shared(sharedMemo* memo, const char* str){
-    int len = strlen(str) + 1; // Taking into account the '\0' character
+    int len = (int)strlen(str) + 1; // Taking into account the '\0' character
     
     // In case no more space
     if (memo->offset + len > 4096){
@@ -65,7 +65,7 @@ void write_shared(sharedMemo* memo, const char* str){
         for (int i = memo->offset - 1; i >= 0; --i){
             memo->data[len + i] = memo->data[i];
         }
-        memcpy(&memo->data[0], str, len);
+        memcpy(&memo->data[0], str, (unsigned long)len);
         memo->offset += len;
     }
 }
