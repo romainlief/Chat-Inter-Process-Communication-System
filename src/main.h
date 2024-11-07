@@ -51,7 +51,7 @@ void write_shared(sharedMemo* memo, const char* str);
 
 void read_memo(sharedMemo* memo);
 
-char* get_LastString(sharedMemo* memo);
+char* getString(sharedMemo* memo);
 
 
 

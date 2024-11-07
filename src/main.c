@@ -4,7 +4,7 @@
 2.2 => terminé
 2.3.1 => terminé
 2.3.2 => terminé
-2.3.3 => mode manuel à faire
+2.3.3 => mode manuel à faire => Controle C
 2.4 => suppression à améliorer
 2.5 => terminé sauf mode manuel
 2.6 => mémoire partagée en cours
@@ -22,6 +22,97 @@ char fifo_receiver[MAX_LEN_FIFO];
 int bot_mode    = 0; 
 int manuel_mode = 0; 
 int verif = 0;  
+
+sharedMemo* shared_memory_initializer(){
+    // Shared memory parameters
+    const int protection = PROT_READ | PROT_WRITE;  // Allow read and write
+    const int visibility = MAP_SHARED| MAP_ANONYMOUS;  // Shared memory
+    const int fd = -1;  // No file backing
+    const int offset = 0;  // No offset
+
+    // Allocate anonymous memory with no file backing
+    sharedMemo* memo = mmap(NULL, 4096, protection, visibility, fd, offset);
+    
+    // Starting adress of shared memory in RAM
+    printf("Pointer address: %p\n", memo);
+    
+    // Handle mmap failure properly
+    if (memo == MAP_FAILED) {
+        perror("mmap failed");
+        exit(1);  
+    }
+
+    memo->offset = 0;
+    return memo;
+}
+
+void clean_shared_memo(sharedMemo* memo){
+    if (munmap(memo, 4096) == -1){
+    perror("munmap()");
+  }
+}
+
+void write_shared(sharedMemo* memo, const char* str){
+    int len = strlen(str) + 1; // Taking into account the '\0' character
+    
+    // In case no more space
+    if (memo->offset + len > 4096){
+        printf("Shared memory is full\n");
+        return;
+    }
+
+    else{
+        for (int i = memo->offset - 1; i >= 0; --i){
+            memo->data[len + i] = memo->data[i];
+        }
+        memcpy(&memo->data[0], str, len);
+        memo->offset += len;
+    }
+}
+
+void read_memo(sharedMemo* memo){
+    if (memo->offset == 0){
+        printf("The shared memory is empty\n");
+        return;
+    }
+
+    // Using a large enough buffer to adapt to all cases
+    static char ret[4096]; 
+    int idx = 0, ret_idx = 0;
+
+    while (idx < memo->offset) {
+        if (memo->data[idx] != '\0') {
+            ret[ret_idx++] = memo->data[idx];
+        } else {
+            // End of a string
+            ret[ret_idx] = '\0';
+            printf("%s", ret);
+            ret_idx = 0;  // Reseting for next string
+        }
+        idx++;
+    }
+}
+
+char* getString(sharedMemo* memo){
+    // Returns the first given string
+    if (memo->offset == 0){
+        printf("The shared memory is empty\n");
+        return NULL;
+    }
+
+    int pos = memo->offset - 1;
+    while (pos > 0 && memo->data[pos - 1] != '\0') {
+        pos--;
+    }
+
+    // Retrievieng all characters untill next '\0'
+    char* last_string = &memo->data[pos];
+    
+    // Updating offset to delete the string from memory
+    memo->offset = pos;
+
+    return last_string;
+}
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)
@@ -66,11 +157,8 @@ void create_pipe(const char* pipe_path) {
 
 void signal_management(int signa) {
    if (signa == SIGINT) {
-      printf("Signal SIGINT reçu\n");
-      unlink(fifo_sender);
-      unlink(fifo_receiver);
-      verif = 1;
-      exit(4);
+    fclose(stdin);
+
    } else if (signa == SIGPIPE) {
       printf("Signal SIGPIPE reçu\n");
       exit(1);
@@ -115,8 +203,8 @@ void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* man
 int main(int argc, char* argv[]) {
 
   // Récupération des pseudos
-  char* pseudo_utilisateur  = argv[1]; // pseudo de l'utilisateur
-  char* pseudo_destinataire = argv[2]; // pseudo du destinataire
+  char* pseudo_utilisateur  = argv[1];
+  char* pseudo_destinataire = argv[2];
   
 
   sa.sa_handler = signal_management;
@@ -125,7 +213,7 @@ int main(int argc, char* argv[]) {
 
   sigaction(SIGINT, &sa, NULL);
   sigaction(SIGPIPE, &sa, NULL);
-
+   
   // Vérification des erreurs
   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
   if (erreur != 0) {
@@ -135,8 +223,10 @@ int main(int argc, char* argv[]) {
   // Gestion des options --bot et --manuel
   verification_param_optinnel(argc, argv, &bot_mode, &manuel_mode);
   
+
+
   // Création des deux path pipes en concaténant les pseudos
-  concatener_pipes(fifo_sender, pseudo_utilisateur, pseudo_destinataire); 
+  concatener_pipes(fifo_sender, pseudo_utilisateur, pseudo_destinataire);
   concatener_pipes(fifo_receiver, pseudo_destinataire, pseudo_utilisateur);
 
   printf("%s\n", fifo_sender);
@@ -149,56 +239,79 @@ int main(int argc, char* argv[]) {
   create_pipe(fifo_sender);
   create_pipe(fifo_receiver);
 
+  
+  char temp[BUFFER_SIZE];
+  sharedMemo* buffer = shared_memory_initializer();
 
-  char buffer[BUFFER_SIZE]; // buffer pour les messages
-  pid_t fork_return = fork(); // création du processus fils
+  pid_t fork_return = fork();
+  
 
-  if(fork_return > 0){ // processus père
+
+  if(fork_return > 0){
     
-    int fd_fifo_sender   = open(fifo_sender, O_WRONLY); // ouverture du pipe sender en écriture
-    int fd_fifo_receiver = open(fifo_receiver, O_WRONLY); // ouverture du pipe receiver en écriture
+    int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
+    int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
 
 
-    while ((fd_fifo_receiver != -1) && (fgets(buffer, sizeof(buffer), stdin) != NULL) && verif!=1) { // tant que le pipe receiver est ouvert et que l'utilisateur écrit un message
-      if (!bot_mode) { // si le mode bot n'est pas activé
-        printf("[\x1B[4m%s\x1B[0m] %s",pseudo_utilisateur,buffer);
-      } 
-      write(fd_fifo_sender, buffer, sizeof(buffer));  // écriture du message dans le pipe sender
+    while (fgets(temp, sizeof(temp), stdin) != NULL){
+      if (!bot_mode) {
+        printf("[\x1B[4m%s\x1B[0m] %s",pseudo_utilisateur,temp);
+      }
+
+      write(fd_fifo_sender, temp, sizeof(temp));
+
       
+      if(manuel_mode){
+        
+
+        while(buffer->offset > 0){
+          printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
+        }
+
+      }
     }
 
-    close(fd_fifo_sender); // fermeture du pipe sender
-    close(fd_fifo_receiver); // fermeture du pipe receiver
+    close(fd_fifo_sender);
+    close(fd_fifo_receiver);
 
 
   } else {
 
-    int fd_fifo_sender   = open(fifo_sender, O_RDONLY); // ouverture du pipe sender en lecture
-    int fd_fifo_receiver = open(fifo_receiver, O_RDONLY); // ouverture du pipe receiver en lecture
+    int fd_fifo_sender   = open(fifo_sender, O_RDONLY);
+    int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
     
-    while ((fd_fifo_receiver != -1) && (read(fd_fifo_receiver, buffer, sizeof(buffer)) > 0) && verif!=1){ // tant que le pipe receiver est ouvert et que le pipe sender envoie un message
-      if (bot_mode == 1) {
-        printf("[%s]: %s",pseudo_destinataire ,buffer);
+    while (read(fd_fifo_receiver, temp, sizeof(temp)) > 0){
+        
+
+      if(!manuel_mode){
+        if (bot_mode) {
+          printf("[%s]: %s",pseudo_destinataire ,temp);
+        }
+        else {
+          printf("[\x1B[4m%s\x1B[0m]: %s",pseudo_destinataire ,temp);
+        }
       }
+
       else {
-        printf("[\x1B[4m%s\x1B[0m]: %s",pseudo_destinataire ,buffer);
+        write_shared(buffer, temp);
+        printf("\a");
+        fflush(stdout); // Permet d'émettre son directement
       }
-      
-
     }
-    close(fd_fifo_sender); // fermeture du pipe sender
-    close(fd_fifo_receiver); // fermeture du pipe receiver
-  }
-  
-  kill(fork_return, SIGKILL);
 
-  
-  // TODO partie du code ou l'on ne passe jamais
-  printf("Interuption\n"); 
-  
-  
-  unlink(fifo_sender); // suppression du pipe sender
-  unlink(fifo_receiver); // suppression du pipe receiver
+    close(fd_fifo_sender);
+    close(fd_fifo_receiver);
+  }
+
+  while(buffer->offset > 0){
+    printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
+    }
+
+
+  kill(fork_return, SIGKILL);  // termine l'enfant
+  printf("Interuption\n");
+  unlink(fifo_sender);
+  unlink(fifo_receiver);
 
   return 0;
 }
