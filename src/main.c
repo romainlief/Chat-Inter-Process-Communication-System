@@ -306,10 +306,9 @@ int main(int argc, char* argv[]) {
 
   while(buffer->offset > 0){
     printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
-    }
+  }
 
 
-  kill(fork_return, SIGKILL);  // termine l'enfant
   printf("Interuption\n");
   unlink(fifo_sender);
   unlink(fifo_receiver);
