@@ -32,7 +32,7 @@ sharedMemo* shared_memory_initializer(){
     const int offset = 0;  // No offset
 
     // Allocate anonymous memory with no file backing
-    sharedMemo* memo = mmap(NULL, 4096, protection, visibility, fd, offset);
+    sharedMemo* memo = mmap(NULL, MAX_MEMORY_SIZE, protection, visibility, fd, offset);
     
     // Starting adress of shared memory in RAM
     printf("Pointer address: %p\n", (void*)memo);
@@ -48,18 +48,18 @@ sharedMemo* shared_memory_initializer(){
 }
 
 void clean_shared_memo(sharedMemo* memo){
-    if (munmap(memo, 4096) == -1){
+    if (munmap(memo, MAX_MEMORY_SIZE) == -1){
     perror("munmap()");
   }
 }
 
-void write_shared(sharedMemo* memo, const char* str){
+int write_shared(sharedMemo* memo, const char* str){
     int len = (int)strlen(str) + 1; // Taking into account the '\0' character
     
     // In case no more space
-    if (memo->offset + len > 4096){
+    if (memo->offset + len > MAX_MEMORY_SIZE){
         printf("Shared memory is full\n");
-        return;
+        return 1;
     }
 
     else{
@@ -69,6 +69,7 @@ void write_shared(sharedMemo* memo, const char* str){
         memcpy(&memo->data[0], str, (unsigned long)len);
         memo->offset += len;
     }
+    return 0;
 }
 
 void read_memo(sharedMemo* memo){
@@ -78,7 +79,7 @@ void read_memo(sharedMemo* memo){
     }
 
     // Using a large enough buffer to adapt to all cases
-    static char ret[4096]; 
+    static char ret[MAX_MEMORY_SIZE]; 
     int idx = 0, ret_idx = 0;
 
     while (idx < memo->offset) {
@@ -252,7 +253,11 @@ int main(int argc, char* argv[]) {
     
     int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
-
+    // if(buffer->offset > MEGA_SIZE){
+    //   while(buffer->offset > 0){
+    //       printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
+    //     }
+    // }
 
     while (fgets(temp, sizeof(temp), stdin) != NULL){
       if (!bot_mode) {
@@ -294,8 +299,16 @@ int main(int argc, char* argv[]) {
       }
 
       else {
-        write_shared(buffer, temp);
+        int max = write_shared(buffer, temp);
         printf("\a");
+
+        if(max == 1){
+        while(buffer->offset > 0){
+          printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
+          }
+          printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire, temp);
+          }
+        
         fflush(stdout); // Permet d'émettre son directement
       }
     }
@@ -307,7 +320,6 @@ int main(int argc, char* argv[]) {
   while(buffer->offset > 0){
     printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
   }
-
 
   printf("Interuption\n");
   unlink(fifo_sender);
