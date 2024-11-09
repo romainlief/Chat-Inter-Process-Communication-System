@@ -24,6 +24,7 @@
 #define END_FIFO_PATH ".chat" // Fin du chemin des pipes
 #define PARAM_BOT "--bot" // Paramètre optionnel bot
 #define PARAM_MANUEL "--manuel" // Paramètre optionnel manuel
+#define MAX_MEMORY_SIZE 20
 
 
 // structures
@@ -58,7 +59,7 @@ void clean_shared_memo(sharedMemo* memo);
  * @param memo Pointeur vers la mémoire partagée
  * @param str Chaîne de caractères à écrire
  */
-void write_shared(sharedMemo* memo, const char* str);
+int write_shared(sharedMemo* memo, const char* str);
 
 /**
  * Lit dans la mémoire partagée.
