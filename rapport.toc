@@ -1,22 +1,22 @@
-\contentsline {section}{\numberline {1}Introduction}{2}{}%
-\contentsline {subsection}{\numberline {1.1}Présentation du projet et contexte:}{2}{}%
-\contentsline {paragraph}{Dans le cadre de notre cours d'OS, nous avons réalisé un projet qui consiste à implémenter un chat en C. Ce chat, permet la communication entre deux utilisateurs via deux terminaux différents sur un même ordinateur grâce à des pipes nommés pour la transmission de messages. Le chat est composé de deux parties, celle décrite ci-dessus et une autre écrite en bash, faisant office de chat-bot. Ce chat-bot est conçu pour simuler un utilisateur en répondant automatiquement à des commandes spécifiques envoyées par l’interlocuteur.\\ Le projet se compose donc de deux parties : le programme de chat (chat) et le script Bash (chat-bot).}{2}{}%
-\contentsline {subsection}{\numberline {1.2}Objectifs du projet:}{2}{}%
-\contentsline {paragraph}{L'objectif de ce projet est de mettre en pratique les concepts vus en cours d'OS, notamment la gestion des processus, des signaux, la gestion de la mémoire partagée, et la communication inter-processus. Ce rapport décrit les choix d'implémentation, les difficultés rencontrées et les solutions mises en œuvre utilisée dans la construction de ce projet.}{2}{}%
-\contentsline {section}{\numberline {2}Choix d’Implémentation}{2}{}%
-\contentsline {subsection}{\numberline {2.1}Gestion des processus}{2}{}%
-\contentsline {paragraph}{}{2}{}%
-\contentsline {subsection}{\numberline {2.2}Gestion des signaux}{2}{}%
-\contentsline {paragraph}{}{2}{}%
-\contentsline {subsection}{\numberline {2.3}Gestion de la mémoire partagée}{2}{}%
-\contentsline {paragraph}{}{2}{}%
-\contentsline {subsection}{\numberline {2.4}Communication inter-processus}{2}{}%
-\contentsline {paragraph}{}{2}{}%
-\contentsline {section}{\numberline {3}Difficultés Rencontrées et Solutions}{2}{}%
-\contentsline {subsection}{\numberline {3.1}}{2}{}%
-\contentsline {paragraph}{}{2}{}%
-\contentsline {section}{\numberline {4}Solutions Originales et Améliorations}{2}{}%
-\contentsline {subsection}{\numberline {4.1}}{2}{}%
-\contentsline {paragraph}{}{2}{}%
-\contentsline {section}{\numberline {5}Conclusion}{3}{}%
-\contentsline {paragraph}{}{3}{}%
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Présentation du projet et contexte}{2}{subsection.1.1}%
+\contentsline {paragraph}{Dans le cadre de notre cours d'OS, nous avons réalisé un projet qui consiste à implémenter un chat en C. Ce chat, permet la communication entre deux utilisateurs via deux terminaux différents sur un même ordinateur grâce à des pipes nommés pour la transmission de messages. Le chat est composé de deux parties, celle décrite ci-dessus et une autre écrite en bash, faisant office de chat-bot. Ce chat-bot est conçu pour simuler un utilisateur en répondant automatiquement à des commandes spécifiques envoyées par l’interlocuteur.\\ Le projet se compose donc de deux parties : le programme de chat (chat) et le script Bash (chat-bot).}{2}{section*.2}%
+\contentsline {subsection}{\numberline {1.2}Objectifs du projet}{2}{subsection.1.2}%
+\contentsline {paragraph}{L'objectif de ce projet est de mettre en pratique les concepts vus en cours d'OS, notamment la gestion des processus, des signaux, la gestion de la mémoire partagée, et la communication inter-processus. Ce rapport décrit les choix d'implémentation, les difficultés rencontrées et les solutions mises en œuvre utilisée dans la construction de ce projet.}{2}{section*.3}%
+\contentsline {section}{\numberline {2}Choix d’Implémentation}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Gestion des processus}{2}{subsection.2.1}%
+\contentsline {paragraph}{}{2}{section*.4}%
+\contentsline {subsection}{\numberline {2.2}Gestion des signaux}{2}{subsection.2.2}%
+\contentsline {paragraph}{}{2}{section*.5}%
+\contentsline {subsection}{\numberline {2.3}Gestion de la mémoire partagée}{2}{subsection.2.3}%
+\contentsline {paragraph}{}{2}{section*.6}%
+\contentsline {subsection}{\numberline {2.4}Communication inter-processus}{2}{subsection.2.4}%
+\contentsline {paragraph}{}{2}{section*.7}%
+\contentsline {section}{\numberline {3}Difficultés Rencontrées et Solutions}{2}{section.3}%
+\contentsline {subsection}{\numberline {3.1}}{2}{subsection.3.1}%
+\contentsline {paragraph}{}{2}{section*.8}%
+\contentsline {section}{\numberline {4}Solutions Originales et Améliorations}{2}{section.4}%
+\contentsline {subsection}{\numberline {4.1}}{2}{subsection.4.1}%
+\contentsline {paragraph}{}{2}{section*.9}%
+\contentsline {section}{\numberline {5}Conclusion}{3}{section.5}%
+\contentsline {paragraph}{}{3}{section*.10}%
