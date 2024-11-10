@@ -1,0 +1,55 @@
+#!/bin/bash
+
+#TODO: rediriger les entrées et sorties standards vers ce script
+
+
+readFile(){
+    #-r pour ignorer les caractères d'échappement
+    while read -r LINE; do
+        if [ ${LINE%% *} == $1 ]; then
+            echo "${LINE#* }"
+        fi
+    done < "liste-bot.txt"
+    echo ""
+}
+
+
+#vérifier si le nombre de paramètres est correct
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then #si moins d'un paramètre ou plus que deux
+    #>&2 pour rediriger le message vers la sortie standard d'erreur
+    echo "chat-bot destinataire [pseudo]" >&2
+    exit 1
+fi
+
+#s'il n'y a pas de 2e argument, le réceptionniste sera "bot" par défaut
+if [ -z "$2" ]; then
+    rec="bot"
+else
+    rec=$2  #receptionniste
+fi
+
+dest=$1 #destinataire
+
+
+#gestion des inputs
+
+read -r input
+
+if [ "$input" == "liste" ]; then
+    echo "$(ls)"
+elif [ "$input" == "li FICHIER" ]; then
+    echo "TODO"
+elif [ "$input" == "qui suis-je" ]; then
+    echo "$dest"
+elif [ "$input" == "au revoir" ]; then
+    echo "Au revoir $dest."
+    exit 0
+else
+    ret=$(readFile "$input")
+    if [ "$ret" == "" ]; then
+        echo "🤖 ?"
+    else
+        echo "$ret"
+    fi
+
+fi
