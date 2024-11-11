@@ -4,19 +4,23 @@
 \contentsline {subsection}{\numberline {1.2}Objectifs du projet}{2}{subsection.1.2}%
 \contentsline {paragraph}{L'objectif de ce projet est de mettre en pratique les concepts vus en cours d'OS, notamment la gestion des processus, des signaux, la gestion de la mémoire partagée, et la communication inter-processus. Ce rapport décrit les choix d'implémentation, les difficultés rencontrées et les solutions mises en œuvre utilisée dans la construction de ce projet.}{2}{section*.3}%
 \contentsline {section}{\numberline {2}Choix d’Implémentation}{2}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Gestion des processus}{2}{subsection.2.1}%
-\contentsline {paragraph}{}{2}{section*.4}%
-\contentsline {subsection}{\numberline {2.2}Gestion des signaux}{2}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.1}Choix du langage}{2}{subsection.2.1}%
+\contentsline {paragraph}{Dans le cadre de ce projet, nous avions le choix entre le C et le C++ comme langage de programmation. Nous avons fait le chois d'utiliser du C car}{2}{section*.4}%
+\contentsline {subsection}{\numberline {2.2}Gestion des processus}{2}{subsection.2.2}%
 \contentsline {paragraph}{}{2}{section*.5}%
-\contentsline {subsection}{\numberline {2.3}Gestion de la mémoire partagée}{2}{subsection.2.3}%
-\contentsline {paragraph}{}{2}{section*.6}%
-\contentsline {subsection}{\numberline {2.4}Communication inter-processus}{2}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.3}Gestion des signaux}{2}{subsection.2.3}%
+\contentsline {paragraph}{Pour la gestion des processus, nous avons décidé d'utiliser "sigaction" et non pas "signal" car}{2}{section*.6}%
+\contentsline {subsection}{\numberline {2.4}Gestion de la mémoire partagée}{2}{subsection.2.4}%
 \contentsline {paragraph}{}{2}{section*.7}%
-\contentsline {section}{\numberline {3}Difficultés Rencontrées et Solutions}{2}{section.3}%
-\contentsline {subsection}{\numberline {3.1}}{2}{subsection.3.1}%
+\contentsline {subsection}{\numberline {2.5}Communication inter-processus}{2}{subsection.2.5}%
 \contentsline {paragraph}{}{2}{section*.8}%
-\contentsline {section}{\numberline {4}Solutions Originales et Améliorations}{2}{section.4}%
-\contentsline {subsection}{\numberline {4.1}}{2}{subsection.4.1}%
-\contentsline {paragraph}{}{2}{section*.9}%
-\contentsline {section}{\numberline {5}Conclusion}{3}{section.5}%
+\contentsline {section}{\numberline {3}Difficultés Rencontrées et Solutions}{2}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Première difficultée: SIGINT et SIGPIPE}{2}{subsection.3.1}%
+\contentsline {paragraph}{Pour nous, la première difficultée fut celle de la gestion des signaux avec le "SIGINT" et le "SIGPIPE"}{2}{section*.9}%
+\contentsline {subsection}{\numberline {3.2}Deuxième difficultée}{3}{subsection.3.2}%
 \contentsline {paragraph}{}{3}{section*.10}%
+\contentsline {section}{\numberline {4}Solutions Originales et Améliorations}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Gestion des variables globales}{3}{subsection.4.1}%
+\contentsline {paragraph}{Lors de la création du projet, étant donné que nous avons choisit le C comme langage de programmation, il était interdit d'utiliser de l'orienté objet et donc aucune variable dans les instanciations des objets. Le premier réflexe est donc de mettre "const <nom de la variable> = "valeur" lorsque celle-ci ne doit pas être modifié et "<nom de la variable> = "valeur" lorsqu'elle peut l'être. Nous avons alors fait le choix de mettre tout les variables globales non modifiable sous la forme "\#define <nom de la variable> <valeur>", cela permet }{3}{section*.11}%
+\contentsline {section}{\numberline {5}Conclusion}{3}{section.5}%
+\contentsline {paragraph}{}{3}{section*.12}%

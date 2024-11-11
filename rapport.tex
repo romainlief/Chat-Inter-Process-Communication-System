@@ -46,22 +46,31 @@ construction de ce projet.}
 
 
 \section{Choix d’Implémentation}
+\subsection{Choix du langage}
+\paragraph{Dans le cadre de ce projet, nous avions le choix entre le C et le C++ comme langage de programmation.
+Nous avons fait le chois d'utiliser du C car}
 \subsection{Gestion des processus}
 \paragraph{}
 \subsection{Gestion des signaux}
-\paragraph{}
+\paragraph{Pour la gestion des processus, nous avons décidé d'utiliser "sigaction" et non pas "signal" car}
 \subsection{Gestion de la mémoire partagée}
 \paragraph{}
 \subsection{Communication inter-processus}
 \paragraph{}
 
 \section{Difficultés Rencontrées et Solutions}
-\subsection{}
+\subsection{Première difficultée: SIGINT et SIGPIPE}
+\paragraph{Pour nous, la première difficultée fut celle de la gestion des signaux avec le "SIGINT" et le "SIGPIPE"}
+\subsection{Deuxième difficultée}
 \paragraph{}
 
 \section{Solutions Originales et Améliorations}
-\subsection{}
-\paragraph{}
+\subsection{Gestion des variables globales}
+\paragraph{Lors de la création du projet, étant donné que nous avons choisit le C comme langage de programmation, il était interdit 
+d'utiliser de l'orienté objet et donc aucune variable dans les instanciations des objets. Le premier réflexe est donc de mettre
+"const <nom de la variable> = "valeur" lorsque celle-ci ne doit pas être modifié et "<nom de la variable> = "valeur" lorsqu'elle 
+peut l'être. Nous avons alors fait le choix de mettre tout les variables globales non modifiable sous la forme 
+"\#define <nom de la variable> <valeur>", cela permet }
 
 \section{Conclusion}
 \paragraph{}
