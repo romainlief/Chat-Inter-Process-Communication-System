@@ -1,5 +1,9 @@
 #include "main.h"
 
+// SIGINGT and SIGPIPE 
+// mémoire saturée
+
+
 /*
 2.2 => terminé
 2.3.1 => terminé
