@@ -35,7 +35,6 @@ sharedMemo* shared_memory_initializer(){
     sharedMemo* memo = mmap(NULL, MAX_MEMORY_SIZE, protection, visibility, fd, offset);
     
     // Starting adress of shared memory in RAM
-    printf("Pointer address: %p\n", (void*)memo);
     
     // Handle mmap failure properly
     if (memo == MAP_FAILED) {
@@ -151,9 +150,9 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
   return 0;
 }
 
+// A MODIFIER 
 void create_pipe(const char* pipe_path) {
   if (mkfifo(pipe_path, 0666) == -1) {
-    printf("PIPE DEJA EXISTANT\n"); // TODO bonne pratique
   }
 }
 
@@ -191,13 +190,6 @@ void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* man
       exit(1);
     }
   }
-
-  if (*bot_mode == 1) {
-    printf("Mode bot activé\n");
-  }  
-  if (*manuel_mode == 1) {
-    printf("Mode manuel activé\n");
-  }
 }
 
 
@@ -231,11 +223,6 @@ int main(int argc, char* argv[]) {
   concatener_pipes(fifo_sender, pseudo_utilisateur, pseudo_destinataire);
   concatener_pipes(fifo_receiver, pseudo_destinataire, pseudo_utilisateur);
 
-  printf("%s\n", fifo_sender);
-  printf("%s\n", fifo_receiver);
-
-  printf("pseudo_utilisateur : %s\n", pseudo_utilisateur);
-  printf("pseudo_destinataire : %s\n", pseudo_destinataire);
 
   // Ouverture des pipes
   create_pipe(fifo_sender);
@@ -262,6 +249,7 @@ int main(int argc, char* argv[]) {
     while (fgets(temp, sizeof(temp), stdin) != NULL){
       if (!bot_mode) {
         printf("[\x1B[4m%s\x1B[0m] %s",pseudo_utilisateur,temp);
+        fflush(stdout);
       }
 
       write(fd_fifo_sender, temp, sizeof(temp));
@@ -272,6 +260,7 @@ int main(int argc, char* argv[]) {
 
         while(buffer->offset > 0){
           printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
+          fflush(stdout);
         }
 
       }
@@ -296,6 +285,7 @@ int main(int argc, char* argv[]) {
         else {
           printf("[\x1B[4m%s\x1B[0m]: %s",pseudo_destinataire ,temp);
         }
+        fflush(stdout);
       }
 
       else {
@@ -319,6 +309,7 @@ int main(int argc, char* argv[]) {
 
   while(buffer->offset > 0){
     printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
+    fflush(stdout);
   }
 
   printf("Interuption\n");
