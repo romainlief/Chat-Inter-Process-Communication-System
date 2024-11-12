@@ -150,12 +150,6 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
   return 0;
 }
 
-// A MODIFIER 
-void create_pipe(const char* pipe_path) {
-  if (mkfifo(pipe_path, 0666) == -1) {
-  }
-}
-
 void signal_management(int signa) {
    if (signa == SIGINT) {
     fclose(stdin);
@@ -224,9 +218,8 @@ int main(int argc, char* argv[]) {
   concatener_pipes(fifo_receiver, pseudo_destinataire, pseudo_utilisateur);
 
 
-  // Ouverture des pipes
-  create_pipe(fifo_sender);
-  create_pipe(fifo_receiver);
+  mkfifo(fifo_sender, 0666);
+  mkfifo(fifo_receiver, 0666);
 
   
   char temp[BUFFER_SIZE];
@@ -240,11 +233,6 @@ int main(int argc, char* argv[]) {
     
     int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
-    // if(buffer->offset > MEGA_SIZE){
-    //   while(buffer->offset > 0){
-    //       printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
-    //     }
-    // }
 
     while (fgets(temp, sizeof(temp), stdin) != NULL){
       if (!bot_mode) {
@@ -296,7 +284,7 @@ int main(int argc, char* argv[]) {
         while(buffer->offset > 0){
           printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
           }
-          printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire, temp);
+          write_shared(buffer, temp);
           }
         
         fflush(stdout); // Permet d'émettre son directement
