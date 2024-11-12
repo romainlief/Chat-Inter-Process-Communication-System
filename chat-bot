@@ -2,11 +2,10 @@
 
 #TODO: rediriger les entrées et sorties standards vers ce script
 
-
 readFile(){
     #-r pour ignorer les caractères d'échappement
     while read -r LINE; do
-        if [ ${LINE%% *} == $1 ]; then
+        if [[ ${LINE%% *} == $1 ]]; then
             echo "${LINE#* }"
         fi
     done < "liste-bot.txt"
@@ -30,26 +29,33 @@ fi
 
 dest=$1 #destinataire
 
+coproc MY_PROC { ./chat "$rec" "$dest" --bot; }
 
-#gestion des inputs
 
-read -r input
 
-if [ "$input" == "liste" ]; then
-    echo "$(ls)"
-elif [ "$input" == "li FICHIER" ]; then
-    echo "TODO"
-elif [ "$input" == "qui suis-je" ]; then
-    echo "$dest"
-elif [ "$input" == "au revoir" ]; then
-    echo "Au revoir $dest."
-    exit 0
-else
-    ret=$(readFile "$input")
-    if [ "$ret" == "" ]; then
-        echo "🤖 ?"
+while read -r input <&"${MY_PROC[0]}"; do
+    entry="${input#* }"
+
+
+    if [[ "$(echo "$entry" | xargs)" == "liste" ]]; then
+        echo "$(ls)" >&"${MY_PROC[1]}"
+
+    elif [[ "$(echo "$entry" | xargs)" == "li FICHIER" ]]; then
+        echo "TODO" >&"${MY_PROC[1]}"
+
+    elif [[ "$(echo "$entry" | xargs)" == "qui suis-je" ]]; then
+        echo "$dest" >&"${MY_PROC[1]}"
+
+    elif [[ "$(echo "$entry" | xargs)" == "au revoir" ]]; then
+        echo "Au revoir $dest." >&"${MY_PROC[1]}"
+
+        exit 0
     else
-        echo "$ret"
+        ret=$(readFile "$entry")
+        if [[ "$ret" == "" ]]; then
+            echo "🤖 ?" >&"${MY_PROC[1]}"
+        else
+            echo "$ret" >&"${MY_PROC[1]}"
+        fi
     fi
-
-fi
+done
