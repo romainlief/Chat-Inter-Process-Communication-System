@@ -10,19 +10,42 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{listingsutf8}
+\usepackage{amsmath}
 
 \usepackage{fullpage}
 \usepackage{hyperref}
 
 % -----------------------------------------------------
 
-\title{Info F-201 : Projet d’OS \\Rapport\vspace{15cm}}
-\author{Auteurs: Liefferinckx Romain, Rocca Manuel, Radu-Loghin Rares\\ Matricule: 000591790, 000596086, 000590079 \\ Section: INFO}
-\date{2024, 10 Novembre}
-
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+    \centering
+    
+    % Titre en haut de la page
+    \vspace*{1cm}
+    {\huge \bfseries Info F-201 : Projet d’OS \\
+                    Rapport \par}
+    
+    % Espace vertical pour centrer le logo
+    \vfill
+    
+    % Logo au milieu de la page
+    \begin{figure}[h]
+        \centering
+        \includegraphics[scale=0.2]{logo.png}
+    \end{figure}
+    
+    % Espace vertical pour descendre l'auteur et la date en bas
+    \vfill
+    
+    % Auteur et date en bas de la page
+    {\large Auteurs: Liefferinckx Romain, Rocca Manuel, Radu-Loghin Rares\\ 
+            Matricules: 000591790, 000596086, 000590079 \\ 
+            Section: INFO \par}
+    {\large 2024, 10 Novembre \par}
+\end{titlepage}
+
 \newpage
 \tableofcontents
 
@@ -67,8 +90,14 @@ Finalement, chaque étape critique de la vie de la mémoire partagée est compl�
 \section{Difficultés Rencontrées et Solutions}
 \subsection{Première difficulté: SIGINT et SIGPIPE}
 \paragraph{Pour nous, la première difficulté fut celle de la gestion des signaux avec le "SIGINT" et le "SIGPIPE"}
-\subsection{Deuxième difficulté}
-\paragraph{}
+\subsection{Deuxième difficulté: Mémoire partagée}
+\paragraph{La seconde difficulté que nous avons rencontrée concerne quant à elle la façon d'implémenter la mémoire partagée. Premièrement, nous avons décidé
+d'utiliser la structure "sharedMemo", expliquée plus haut, pour éviter les complications que peut apporter l'utilisation de l'arithmétique de pointeurs. Ensuite
+vient le choix de la structure de donnée abstraite à utiliser pour que le fonctionnement de la mémoire corresponde à nos besoin. Nous avons d'abord opté pour
+le "stack" et son principe de "last-in, first-out", mais comme nous cherchons à récupérer le premier string entré, la "queue" tombait sous le sens. Pour expliquer
+brièvement notre manière de procéder, nous avons une boucle qui, lorsqu'un nouveau string est ajouté, décale tous les mots dans la mémoire vers la droite (vers la 
+fin de la mémoire). Il est donc placé au début de notre espace alloué. En ce qui concerne le retrait du premier string entré, nous procédons avec un pop classique. Nous 
+récupérons le dernier élément, sans oublier de placer l'index à la fin du string juste derrière celui retiré.}
 
 \section{Solutions Originales et Améliorations}
 \subsection{Gestion des variables globales}
