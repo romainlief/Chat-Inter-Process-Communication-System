@@ -24,15 +24,11 @@
 #define END_FIFO_PATH ".chat" // Fin du chemin des pipes
 #define PARAM_BOT "--bot" // Paramètre optionnel bot
 #define PARAM_MANUEL "--manuel" // Paramètre optionnel manuel
-#define MAX_MEMORY_SIZE 20
 
 
-// structures
+// Structures
 struct sigaction sa; // Structure pour la gestion des signaux
-typedef struct{
-    int offset;
-    char data[4096];
-} sharedMemo;
+
 
 // Variables globales
 extern char fifo_sender[MAX_LEN_FIFO]; // Chemin du pipe sender
@@ -42,40 +38,6 @@ extern int manuel_mode; // 0 = normal, 1 = mode manuel
 extern int verif; // Variable modifiée par les signaux
 
 // Déclarations des fonctions
-/**
- * Initialise la mémoire partagée.
- * @return Pointeur vers la mémoire partagée
- */ 
-sharedMemo* shared_memory_initializer();
-
-/**
- * Libère la mémoire partagée.
- * @param memo Pointeur vers la mémoire partagée
- */
-void clean_shared_memo(sharedMemo* memo);
-
-/**
- * Ecrit dans la mémoire partagée.
- * @param memo Pointeur vers la mémoire partagée
- * @param str Chaîne de caractères à écrire
- */
-int write_shared(sharedMemo* memo, const char* str);
-
-/**
- * Lit dans la mémoire partagée.
- * @param memo Pointeur vers la mémoire partagée
- */
-void read_memo(sharedMemo* memo);
-
-/**
- * Récupère une chaîne de caractères de la mémoire partagée.
- * @param memo Pointeur vers la mémoire partagée
- * @return Chaîne de caractères
- */
-char* getString(sharedMemo* memo);
-
-
-
 /**
  * Vérifie les erreurs possibles lors de l'exécution du programme.
  * @param argc Nombre d'arguments

@@ -1,4 +1,5 @@
 #include "main.h"
+#include "memory.h"
 
 // SIGINGT and SIGPIPE 
 // mémoire saturée
@@ -28,96 +29,6 @@ int bot_mode    = 0;
 int manuel_mode = 0; 
 int verif = 0;  
 
-sharedMemo* shared_memory_initializer(){
-    // Shared memory parameters
-    const int protection = PROT_READ | PROT_WRITE;  // Allow read and write
-    const int visibility = MAP_SHARED| MAP_ANONYMOUS;  // Shared memory
-    const int fd = -1;  // No file backing
-    const int offset = 0;  // No offset
-
-    // Allocate anonymous memory with no file backing
-    sharedMemo* memo = mmap(NULL, MAX_MEMORY_SIZE, protection, visibility, fd, offset);
-    
-    // Starting adress of shared memory in RAM
-    
-    // Handle mmap failure properly
-    if (memo == MAP_FAILED) {
-        perror("mmap failed");
-        exit(1);  
-    }
-
-    memo->offset = 0;
-    return memo;
-}
-
-void clean_shared_memo(sharedMemo* memo){
-    if (munmap(memo, MAX_MEMORY_SIZE) == -1){
-    perror("munmap()");
-  }
-}
-
-int write_shared(sharedMemo* memo, const char* str){
-    int len = (int)strlen(str) + 1; // Taking into account the '\0' character
-    
-    // In case no more space
-    if (memo->offset + len > MAX_MEMORY_SIZE){
-        printf("Shared memory is full\n");
-        return 1;
-    }
-
-    else{
-        for (int i = memo->offset - 1; i >= 0; --i){
-            memo->data[len + i] = memo->data[i];
-        }
-        memcpy(&memo->data[0], str, (unsigned long)len);
-        memo->offset += len;
-    }
-    return 0;
-}
-
-void read_memo(sharedMemo* memo){
-    if (memo->offset == 0){
-        printf("The shared memory is empty\n");
-        return;
-    }
-
-    // Using a large enough buffer to adapt to all cases
-    static char ret[MAX_MEMORY_SIZE]; 
-    int idx = 0, ret_idx = 0;
-
-    while (idx < memo->offset) {
-        if (memo->data[idx] != '\0') {
-            ret[ret_idx++] = memo->data[idx];
-        } else {
-            // End of a string
-            ret[ret_idx] = '\0';
-            printf("%s", ret);
-            ret_idx = 0;  // Reseting for next string
-        }
-        idx++;
-    }
-}
-
-char* getString(sharedMemo* memo){
-    // Returns the first given string
-    if (memo->offset == 0){
-        printf("The shared memory is empty\n");
-        return NULL;
-    }
-
-    int pos = memo->offset - 1;
-    while (pos > 0 && memo->data[pos - 1] != '\0') {
-        pos--;
-    }
-
-    // Retrievieng all characters untill next '\0'
-    char* last_string = &memo->data[pos];
-    
-    // Updating offset to delete the string from memory
-    memo->offset = pos;
-
-    return last_string;
-}
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
   // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)
@@ -244,7 +155,12 @@ int main(int argc, char* argv[]) {
         fflush(stdout);
       }
 
-      write(fd_fifo_sender, temp, sizeof(temp));
+      ssize_t isOK = write(fd_fifo_sender, temp, sizeof(temp));
+
+      // Gestion de l'erreur potentielle
+      if (isOK < 0){
+        perror("write");
+      }
 
       
       if(manuel_mode){
