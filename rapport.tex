@@ -16,13 +16,14 @@
 
 % -----------------------------------------------------
 
-\title{Info F-201 : Projet d’OS \\Rapport}
+\title{Info F-201 : Projet d’OS \\Rapport\vspace{15cm}}
 \author{Auteurs: Liefferinckx Romain, Rocca Manuel, Radu-Loghin Rares\\ Matricule: 000591790, 000596086, 000590079 \\ Section: INFO}
-\date{10/11/2024}
+\date{2024, 10 Novembre}
 
 \begin{document}
 
 \maketitle
+\newpage
 \tableofcontents
 
 \newpage
@@ -48,20 +49,25 @@ construction de ce projet.}
 \section{Choix d’Implémentation}
 \subsection{Choix du langage}
 \paragraph{Dans le cadre de ce projet, nous avions le choix entre le C et le C++ comme langage de programmation.
-Nous avons fait le chois d'utiliser du C car}
+Nous avons fait le choix d'utiliser du C car}
 \subsection{Gestion des processus}
 \paragraph{}
 \subsection{Gestion des signaux}
 \paragraph{Pour la gestion des processus, nous avons décidé d'utiliser "sigaction" et non pas "signal" car}
 \subsection{Gestion de la mémoire partagée}
-\paragraph{}
+\paragraph{La mémoire partagée, utilisée par le mode "--manuel", est implémentée à l'aide d'une structure "sharedMemo". Celle-ci permet une gestion
+par indexage de la mémoire, sans avoir à se soucier des pointeurs. Elle est donc composée d'un entier reprenant le décalage et d'un tableau de 4096 octets,
+représentant la mémoire elle-même. \\En ce qui concerne son fonctionnement, nous sommes partis sur la structure de donnée "queue". Elle
+permet de récupérer facilement le premier string entré grâce au principe "first-in, first-out". Nous retrouvons les fonctions pour lire et écrire, ainsi
+que celles pour initialiser la mémoire et la désallouer. Une fonction permettant la lecture complète la mémoire est également mais non-utilisée.
+Finalement, chaque étape critique de la vie de la mémoire partagée est complémentée par de la gestion d'erreurs pour s'assurer de son bon fonctionnement.}
 \subsection{Communication inter-processus}
 \paragraph{}
 
 \section{Difficultés Rencontrées et Solutions}
-\subsection{Première difficultée: SIGINT et SIGPIPE}
-\paragraph{Pour nous, la première difficultée fut celle de la gestion des signaux avec le "SIGINT" et le "SIGPIPE"}
-\subsection{Deuxième difficultée}
+\subsection{Première difficulté: SIGINT et SIGPIPE}
+\paragraph{Pour nous, la première difficulté fut celle de la gestion des signaux avec le "SIGINT" et le "SIGPIPE"}
+\subsection{Deuxième difficulté}
 \paragraph{}
 
 \section{Solutions Originales et Améliorations}
