@@ -31,12 +31,6 @@ int verif = 0;
 
 
 int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinataire) {
-  // Vérification du nombre d'arguments => chat pseudo_utilisateur pseudo_destinataire (obligatoire)
-  if (argc < 3) {
-    fprintf(stderr, "chat pseudo_utilisateur pseudo_destinataire [--bot] [--manuel]\n");
-    return 1;
-  }
-
   if (argc > 5) {
     fprintf(stderr, "Erreur: Trop d'arguments\n");
     return 5;
@@ -106,7 +100,11 @@ void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* man
 
 // TODO paramètre optionnel (2.3 consignes)
 int main(int argc, char* argv[]) {
-  
+
+  if (argc < 3) {
+    fprintf(stderr, "chat pseudo_utilisateur pseudo_destinataire [--bot] [--manuel]\n");
+    return 1;
+  }
 
   // Récupération des pseudos
   char* pseudo_utilisateur  = argv[1];
@@ -116,6 +114,8 @@ int main(int argc, char* argv[]) {
   sa.sa_handler = signal_management;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
+  
+
    
   // Vérification des erreurs
   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
