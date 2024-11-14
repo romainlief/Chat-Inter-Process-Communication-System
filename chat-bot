@@ -40,8 +40,25 @@ while read -r input <&"${MY_PROC[0]}"; do
     if [[ "$(echo "$entry" | xargs)" == "liste" ]]; then
         echo "$(ls)" >&"${MY_PROC[1]}"
 
-    elif [[ "$(echo "$entry" | xargs)" == "li FICHIER" ]]; then
-        echo "TODO" >&"${MY_PROC[1]}"
+    # identifier la commande li, séparément du nom du fichier
+    elif [[ "$(echo "$entry" | xargs)" =~ ^li\   ]] || [ "$(echo "$entry" | xargs)" == "li" ]; then 
+        # diviser la commande en "li" et "FICHIER"
+        set -- $entry
+        
+        # vérifier si il y a bien un argument
+        if [ $# -eq 1 ] || [ $# -gt 2 ]; then
+            echo "La commande 'li' requiert un argument." >&2
+            exit 1
+        
+        # vérifier si le fichier existe
+        elif [ -f $2 ]; then
+            echo "$(cat) $2" >&"${MY_PROC[1]}"
+        
+        # le fichier n'existe pas
+        else
+            echo "Le fichier $2 n'existe pas dans le répertoire courant" >&2
+            exit 1
+        fi        
 
     elif [[ "$(echo "$entry" | xargs)" == "qui suis-je" ]]; then
         echo "$dest" >&"${MY_PROC[1]}"
