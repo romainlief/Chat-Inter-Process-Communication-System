@@ -66,6 +66,8 @@ int verifier_erreurs(int argc, char* pseudo_utilisateur, char* pseudo_destinatai
 }
 
 void signal_management(int signa) {
+  printf("sigial recun\n");
+  
    if (signa == SIGINT) {
     fclose(stdin);
 
@@ -104,6 +106,7 @@ void verification_param_optinnel(int argc, char* argv[], int* bot_mode, int* man
 
 // TODO paramètre optionnel (2.3 consignes)
 int main(int argc, char* argv[]) {
+  
 
   // Récupération des pseudos
   char* pseudo_utilisateur  = argv[1];
@@ -113,9 +116,6 @@ int main(int argc, char* argv[]) {
   sa.sa_handler = signal_management;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
-
-  sigaction(SIGINT, &sa, NULL);
-  sigaction(SIGPIPE, &sa, NULL);
    
   // Vérification des erreurs
   int erreur = verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);
@@ -140,11 +140,13 @@ int main(int argc, char* argv[]) {
   char temp[BUFFER_SIZE];
   sharedMemo* buffer = shared_memory_initializer();
 
+
   pid_t fork_return = fork();
   
-
-
   if(fork_return > 0){
+    sigaction(SIGINT, &sa, NULL);
+    
+    
     
     int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
@@ -155,12 +157,7 @@ int main(int argc, char* argv[]) {
         fflush(stdout);
       }
 
-      ssize_t isOK = write(fd_fifo_sender, temp, sizeof(temp));
-
-      // Gestion de l'erreur potentielle
-      if (isOK < 0){
-        perror("write");
-      }
+      write(fd_fifo_sender, temp, sizeof(temp));
 
       
       if(manuel_mode){
@@ -173,13 +170,14 @@ int main(int argc, char* argv[]) {
 
       }
     }
-
+    
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
+    
 
 
   } else {
-
+    
     int fd_fifo_sender   = open(fifo_sender, O_RDONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
     
@@ -210,9 +208,10 @@ int main(int argc, char* argv[]) {
         fflush(stdout); // Permet d'émettre son directement
       }
     }
-
+    
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
+
   }
 
   while(buffer->offset > 0){
