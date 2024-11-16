@@ -11,9 +11,11 @@
 #define PARAM_BOT "--bot"       // Paramètre optionnel bot
 #define PARAM_MANUEL "--manuel" // Paramètre optionnel manuel
 
+// Variables globales
 extern int bot_mode;    // 0 = normal, 1 = mode bot
 extern int manuel_mode; // 0 = normal, 1 = mode manuel
 
+// Déclaration des fonctions
 /**
  * @brief Vérifie si le nombre d'arguments est suffisant.
  *

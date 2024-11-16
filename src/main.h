@@ -28,7 +28,6 @@ extern char fifo_sender[MAX_LEN_FIFO];   // Chemin du pipe sender
 extern char fifo_receiver[MAX_LEN_FIFO]; // Chemin du pipe receiver
 
 // Déclaration des fonctions
-
 /**
  * Gère les signaux SIGINT et SIGPIPE.
  * @param signa Signal reçu

@@ -5,11 +5,13 @@
 #include "pipe_manager.h"
 
 
+// Variables globales
 char fifo_sender[MAX_LEN_FIFO];
 char fifo_receiver[MAX_LEN_FIFO];
 int bot_mode = 0;
 int manuel_mode = 0;
 
+// Fonctions
 void signal_management(int signa) {
   printf("sigial reçu\n");
   if (signa == SIGINT) {
