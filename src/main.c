@@ -1,5 +1,6 @@
 #include "main.h"
 #include "memory.h"
+#include <string.h>
 
 // SIGINGT and SIGPIPE 
 // mémoire saturée
@@ -67,7 +68,8 @@ void signal_management(int signa) {
 
    } else if (signa == SIGPIPE) {
       printf("Signal SIGPIPE reçu\n");
-      exit(1);
+      fclose(stdin);
+      
    }
 }
 
@@ -140,28 +142,26 @@ int main(int argc, char* argv[]) {
   char temp[BUFFER_SIZE];
   sharedMemo* buffer = shared_memory_initializer();
 
-
   pid_t fork_return = fork();
   
   if(fork_return > 0){
     sigaction(SIGINT, &sa, NULL);
     
-    
-    
     int fd_fifo_sender   = open(fifo_sender, O_WRONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
 
+    
+
     while (fgets(temp, sizeof(temp), stdin) != NULL){
+        
       if (!bot_mode) {
         printf("[\x1B[4m%s\x1B[0m] %s",pseudo_utilisateur,temp);
         fflush(stdout);
       }
 
-      write(fd_fifo_sender, temp, sizeof(temp));
-
+      int ecriture = write(fd_fifo_sender, temp, sizeof(temp));
       
       if(manuel_mode){
-        
 
         while(buffer->offset > 0){
           printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
@@ -169,22 +169,31 @@ int main(int argc, char* argv[]) {
         }
 
       }
+        
     }
-    
+
+    write(fd_fifo_sender, "\0", 2);
+
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
     
 
 
   } else {
+    sigaction(SIGPIPE, &sa, NULL);
     
     int fd_fifo_sender   = open(fifo_sender, O_RDONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
-    
-    while (read(fd_fifo_receiver, temp, sizeof(temp)) > 0){
-        
 
-      if(!manuel_mode){
+    while (read(fd_fifo_receiver, temp, sizeof(temp)) > 0){
+      if(strcmp(temp, "\0") == 0){
+        
+        // fclose(stdin);
+        raise(SIGPIPE);
+
+      }
+
+      else if(!manuel_mode){
         if (bot_mode) {
           printf("[%s]: %s",pseudo_destinataire ,temp);
         }
@@ -207,8 +216,12 @@ int main(int argc, char* argv[]) {
         
         fflush(stdout); // Permet d'émettre son directement
       }
+      fd_fifo_sender   = open(fifo_sender, O_RDONLY);
+      fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
+
     }
-    
+
+
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
 
@@ -218,10 +231,11 @@ int main(int argc, char* argv[]) {
     printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire ,getString(buffer));
     fflush(stdout);
   }
-
+  kill(fork_return, SIGINT);
   printf("Interuption\n");
   unlink(fifo_sender);
   unlink(fifo_receiver);
+  
 
   return 0;
 }
