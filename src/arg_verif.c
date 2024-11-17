@@ -1,5 +1,8 @@
 #include "arg_verif.h"
 
+// Variables globales
+int bot_mode = 0;
+int manuel_mode = 0;
 
 int min_argc(int argc) {
   if (argc < 3) {

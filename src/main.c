@@ -8,8 +8,7 @@
 // Variables globales
 char fifo_sender[MAX_LEN_FIFO];
 char fifo_receiver[MAX_LEN_FIFO];
-int bot_mode = 0;
-int manuel_mode = 0;
+
 
 // Fonctions
 void signal_management(int signa) {
@@ -21,6 +20,7 @@ void signal_management(int signa) {
     fclose(stdin);
   }
 }
+
 
 int main(int argc, char *argv[]) {
   if (min_argc(argc)) {

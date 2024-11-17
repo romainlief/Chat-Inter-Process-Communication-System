@@ -1,5 +1,6 @@
 #include "memory.h"
 
+// Fonctions
 sharedMemo* shared_memory_initializer(){
     // Paramètres pour initialiser la mémoire partagée
     const int protection = PROT_READ | PROT_WRITE;  // Autoriser la lecture et l'écriture

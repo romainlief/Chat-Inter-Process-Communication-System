@@ -11,6 +11,7 @@
 #define BASE_FIFO_PATH "/tmp/" // Chemin de base des pipes
 #define END_FIFO_PATH ".chat"  // Fin du chemin des pipes
 
+// Déclaration des fonctions
 /**
  * Concatène les pseudos pour créer le chemin du pipe.
  * @param fifo_path Chemin du pipe

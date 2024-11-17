@@ -1,5 +1,6 @@
 #include "pipe_manager.h"
 
+// Fonctions
 void concatener_pipes(char *fifo_path, const char *pseudo1,
                       const char *pseudo2) {
   strcpy(fifo_path, BASE_FIFO_PATH);
