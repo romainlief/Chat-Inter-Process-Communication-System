@@ -49,7 +49,11 @@ int main(int argc, char *argv[]) {
   initialiser_pipes(fifo_sender, fifo_receiver);
 
   char temp[BUFFER_SIZE];
-  sharedMemo *buffer = shared_memory_initializer();
+  size_t memory_size = 0;
+  if (manuel_mode) {
+    memory_size = MAX_MEMORY_SIZE;
+  } 
+  sharedMemo *buffer = shared_memory_initializer(memory_size);
 
   pid_t fork_return = fork();
 

@@ -22,7 +22,7 @@ typedef struct { // Structure pour la mémoire partagée
  * Initialise la mémoire partagée.
  * @return Pointeur vers la mémoire partagée
  */
-sharedMemo *shared_memory_initializer();
+sharedMemo *shared_memory_initializer(size_t memory_size);
 
 /**
  * Libère la mémoire partagée.

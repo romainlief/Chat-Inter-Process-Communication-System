@@ -1,7 +1,7 @@
 #include "memory.h"
 
 // Fonctions
-sharedMemo* shared_memory_initializer(){
+sharedMemo* shared_memory_initializer(size_t memory_size){
     // Paramètres pour initialiser la mémoire partagée
     const int protection = PROT_READ | PROT_WRITE;  // Autoriser la lecture et l'écriture
     const int visibility = MAP_SHARED| MAP_ANONYMOUS;  // Visibilité de la mémoire, qui peut y accéder
@@ -9,7 +9,7 @@ sharedMemo* shared_memory_initializer(){
     const int offset = 0;  // Pas de décalage initial
 
     // Allouer la mémoire partagée
-    sharedMemo* memo = mmap(NULL, MAX_MEMORY_SIZE, protection, visibility, fd, offset);
+    sharedMemo* memo = mmap(NULL, memory_size, protection, visibility, fd, offset);
     
     // Vérifier si la mémoire est bien initialisée
     if (memo == MAP_FAILED) {
