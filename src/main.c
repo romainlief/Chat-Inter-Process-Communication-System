@@ -12,11 +12,9 @@ char fifo_receiver[MAX_LEN_FIFO];
 
 // Fonctions
 void signal_management(int signa) {
-  printf("sigial reçu\n");
   if (signa == SIGINT) {
     fclose(stdin);
-  } else if (signa == SIGPIPE) {
-    printf("Signal SIGPIPE reçu\n");
+  } else if (signa == SIGPIPE) { // Ce cas n'arrive jamais, mais au cas ou nous le laissons
     fclose(stdin);
   }
 }
@@ -49,7 +47,7 @@ int main(int argc, char *argv[]) {
   initialiser_pipes(fifo_sender, fifo_receiver);
 
   char temp[BUFFER_SIZE];
-  size_t memory_size = 0;
+  size_t memory_size = 1;
   if (manuel_mode) {
     memory_size = MAX_MEMORY_SIZE;
   } 
