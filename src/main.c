@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 
       ssize_t ecriture = write(fd_fifo_sender, temp, sizeof(temp));
       if (ecriture == -1) {
-        perror("Erreur d'écriture");
+        perror("write()");
         break;
       }
 
