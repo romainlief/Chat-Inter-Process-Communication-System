@@ -1,6 +1,8 @@
 #include "memory.h"
 
 // Fonctions
+
+// ############ Mémoire partagée ############
 sharedMemo* shared_memory_initializer(size_t memory_size){
     // Paramètres pour initialiser la mémoire partagée
     const int protection = PROT_READ | PROT_WRITE;  // Autoriser la lecture et l'écriture
@@ -88,4 +90,65 @@ char* getString(sharedMemo* memo){
     memo->offset = pos;
 
     return last_string;
+}
+
+// ############ Fonctions mémoire dynamique ############
+void etendre_liste(liste_t* liste) {
+    liste->taille_reelle *= 2;
+    char* new_vals = (char*)malloc(liste->taille_reelle);
+
+    // Vérifier s'il n'y a eu aucun problème lors du malloc
+    if (new_vals == NULL) {
+        perror("malloc()");
+        free(liste->valeurs);
+        exit(1);
+    }
+
+    memcpy(new_vals, liste->valeurs, liste->taille_logique);
+    free(liste->valeurs);
+    liste->valeurs = new_vals;
+}
+
+liste_t getDynamicString() {
+  liste_t liste = {0, INIT_MALLOC_SIZE, NULL};
+  liste.valeurs = malloc(liste.taille_reelle);
+
+  if (liste.valeurs == NULL) {
+    perror("malloc()");
+    exit(1);
+  }
+
+  char str[CHUNK] = {0};
+  bool flag = false;
+  size_t str_len = CHUNK;
+
+  while (str_len >= CHUNK || flag) {
+    if (fgets(str, sizeof(str), stdin) ==  NULL) { // Gestion de EOF
+      free(liste.valeurs);
+      liste.valeurs = NULL;
+      return liste;
+    }
+
+    str_len = strlen(str);
+
+    if (str_len == (CHUNK - 1)) { // Potentiellement encore de l'input à lire
+      flag = true; // Pour faire tourner la boucle une fois de plus
+    }
+
+    if (flag && str_len < (CHUNK - 1)) {
+      flag = false;
+    }
+
+    // Étendre la liste si nécessaire
+    if (liste.taille_logique + str_len + 1 >= liste.taille_reelle) {
+      etendre_liste(&liste);
+    }
+
+    // Ajouter la chaîne au buffer
+    memcpy(liste.valeurs + liste.taille_logique, str, str_len);
+    liste.taille_logique += str_len;
+  }
+
+  liste.valeurs[liste.taille_logique] = '\0';
+  return liste;
 }

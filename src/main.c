@@ -46,7 +46,6 @@ int main(int argc, char *argv[]) {
 
   initialiser_pipes(fifo_sender, fifo_receiver);
 
-  char temp[BUFFER_SIZE];
   size_t memory_size = 1;
   if (manuel_mode) {
     memory_size = MAX_MEMORY_SIZE;
@@ -61,9 +60,17 @@ int main(int argc, char *argv[]) {
     int fd_fifo_sender = open(fifo_sender, O_WRONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
 
-    while (fgets(temp, sizeof(temp), stdin) != NULL) {
-
+    while (1) {
+      liste_t ls = getDynamicString();
+      if (ls.valeurs == NULL) {
+        break;
+      }
+      char temp[ls.taille_reelle];
+      strcpy(temp, ls.valeurs);
+      free(ls.valeurs);
+      
       if (!bot_mode) {
+        // S'effectue un nombre indéterminé de fois avant de s'arrêter
         printf("[\x1B[4m%s\x1B[0m] %s", pseudo_utilisateur, temp);
         fflush(stdout);
       }
@@ -82,13 +89,17 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-
-    write(fd_fifo_sender, "\0", sizeof("\0"));
+    ssize_t verif = write(fd_fifo_sender, "\0", sizeof("\0"));
+    if (verif < 0) {
+      perror("write()");
+      exit(1);
+    }
 
     close(fd_fifo_sender);
     close(fd_fifo_receiver);
 
   } else {
+    char temp[BUFFER_SIZE];
     sigaction(SIGPIPE, &sa, NULL);
     int fd_fifo_sender = open(fifo_sender, O_RDONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);

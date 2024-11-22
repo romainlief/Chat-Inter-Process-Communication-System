@@ -72,11 +72,19 @@ construction de ce projet.}
 \section{Choix d’Implémentation}
 \subsection{Choix du langage}
 \paragraph{Dans le cadre de ce projet, nous avions le choix entre le C et le C++ comme langage de programmation.
-Nous avons fait le choix d'utiliser du C car}
+Nous avons fait le choix d'utiliser du C car c'est en C que nous avons vu la matère durant les séances de travaux pratiques. 
+De plus, les OS modernes sont majoritairement écrits en C, bien qu'ils utilisent un peu de C++.}
+
+
 \subsection{Gestion des processus}
 \paragraph{}
+
 \subsection{Gestion des signaux}
-\paragraph{Pour la gestion des processus, nous avons décidé d'utiliser "sigaction" et non pas "signal" car}
+\paragraph{Pour la gestion des processus, nous avons décidé d'utiliser "sigaction" et non pas "signal" car celle-ci nous a été recommandée par notre assistant durant un Tp.
+En effet, "signal" est une fonction qui ne permet pas de gérer les signaux de manière fiable, du moins nous n'avons pas réussi a la faire fonctionner 
+correctement dans notre projet et avons changé. "sigaction" est donc la fonction à utiliser pour gérer les signaux grâce à sa structure 
+"struct sigaction" qui permet une certaine modularité de la structure du code et dans la gestion des signaux.}
+
 \subsection{Gestion de la mémoire partagée}
 \paragraph{La mémoire partagée, utilisée par le mode "--manuel", est implémentée à l'aide d'une structure "sharedMemo". Celle-ci permet une gestion
 par indexage de la mémoire, sans avoir à se soucier des pointeurs. Elle est donc composée d'un entier reprenant le décalage et d'un tableau de 4096 octets,
@@ -88,8 +96,15 @@ Finalement, chaque étape critique de la vie de la mémoire partagée est compl�
 \paragraph{}
 
 \section{Difficultés Rencontrées et Solutions}
+
 \subsection{Première difficulté: SIGINT et SIGPIPE}
-\paragraph{Pour nous, la première difficulté fut celle de la gestion des signaux avec le "SIGINT" et le "SIGPIPE"}
+\paragraph{Pour nous, la première difficulté fut celle de la gestion des signaux avec le "SIGINT" et le "SIGPIPE"
+qui sont envoyés par le système d'exploitation. En effet, le "SIGINT" est envoyé lorsqu'on appuie sur "Ctrl+C" et le "SIGPIPE" lorsque le pipe est fermé.
+De plus, quand un signal est intercepté, les deux ./chat doivent être fermé, c'est la que tout s'est compliqué.
+Pour gérer tout ca, nous avons décidé d'utiliser "sigaction" plutôt que "signal" comme expliqué dans la section précédente.
+Les signaux sont gérés dans la main, qui utilise une fonction signal\_management pour les gérer, celle-ci est appelée à chaque fois qu'un signal est reçu, 
+et ferme l'entrée standard, les descripteurs de fichiers sont bien fermé après chaque utilisation, les processus sont bien tués et les fifo bien unlink.}
+
 \subsection{Deuxième difficulté: Mémoire partagée}
 \paragraph{La seconde difficulté que nous avons rencontrée concerne quant à elle la façon d'implémenter la mémoire partagée. Premièrement, nous avons décidé
 d'utiliser la structure "sharedMemo", expliquée plus haut, pour éviter les complications que peut apporter l'utilisation de l'arithmétique de pointeurs. Ensuite
@@ -98,6 +113,16 @@ le "stack" et son principe de "last-in, first-out", mais comme nous cherchons à
 brièvement notre manière de procéder, nous avons une boucle qui, lorsqu'un nouveau string est ajouté, décale tous les mots dans la mémoire vers la droite (vers la 
 fin de la mémoire). Il est donc placé au début de notre espace alloué. En ce qui concerne le retrait du premier string entré, nous procédons avec un pop classique. Nous 
 récupérons le dernier élément, sans oublier de placer l'index à la fin du string juste derrière celui retiré.}
+
+\subsection{Troisième difficultée: Taille du buffer}
+\paragraph{Pour la taille du buffer, nous avions mis 256 octets, ce qui nous semblait correcte mais 
+nous nous sommes rendu compte en posant la question à notre assistant que le buffer devait avoir une taille infinie,
+cela quelque jours avant la remise du projet. Nous avons donc du changer cela en vitesse. Pour la résolution de ce problème,
+nous avons utilisé des concepts vu lors du premier Tp d'introduction ou nous devions agrandir la taille d'une 
+liste en la doublant tout en utilisant malloc pour allouer la mémoire afin que celle-ci ne sépuise pas.
+De plus, évidemmment, un changement de ce genre en dernière minute a des conséquences sur le reste du code, cela a provoqué 
+des bugs que nous avons du corriger.}
+
 
 \section{Solutions Originales et Améliorations}
 \subsection{Gestion des variables globales}
@@ -119,8 +144,6 @@ une charge de travail réduite, mais également d'autres aspects pas toujours po
 parfois s'avérer laborieuse. Heureusement, cette gestion s'est faite sans accrocs dans notre groupe et nous a permis d'avoir
 un aperçu du travail de groupe dans le monde professionnel.
 }
-
-
 
 
 
