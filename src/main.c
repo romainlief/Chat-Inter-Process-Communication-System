@@ -53,6 +53,10 @@ int main(int argc, char *argv[]) {
   sharedMemo *buffer = shared_memory_initializer(memory_size);
 
   pid_t fork_return = fork();
+  if (fork_return == -1) {
+    perror("fork()");
+    return 6;
+  }
 
   if (fork_return > 0) {
     sigaction(SIGINT, &sa, NULL);
