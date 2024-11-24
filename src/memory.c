@@ -131,7 +131,7 @@ liste_t getDynamicString() {
 
     str_len = strlen(str);
 
-    if (str_len == (CHUNK - 1)) { // Potentiellement encore de l'input à lire
+    if (str_len == (CHUNK - 1) && str[str_len - 1] != '\n') { // Potentiellement encore de l'input à lire
       flag = true; // Pour faire tourner la boucle une fois de plus
     }
 
