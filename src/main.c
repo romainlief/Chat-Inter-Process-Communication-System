@@ -62,7 +62,6 @@ int main(int argc, char *argv[]) {
     sigaction(SIGINT, &sa, NULL);
 
     int fd_fifo_sender = open(fifo_sender, O_WRONLY);
-    int fd_fifo_receiver = open(fifo_receiver, O_WRONLY);
 
     while (1) {
       liste_t ls = getDynamicString();
@@ -100,12 +99,10 @@ int main(int argc, char *argv[]) {
     }
 
     close(fd_fifo_sender);
-    close(fd_fifo_receiver);
 
   } else {
     char temp[BUFFER_SIZE];
     sigaction(SIGPIPE, &sa, NULL);
-    int fd_fifo_sender = open(fifo_sender, O_RDONLY);
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
     while (read(fd_fifo_receiver, temp, sizeof(temp)) > 0 &&
@@ -133,11 +130,9 @@ int main(int argc, char *argv[]) {
 
         fflush(stdout); // Permet d'émettre son directement
       }
-      fd_fifo_sender = open(fifo_sender, O_RDONLY);
       fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
     }
 
-    close(fd_fifo_sender);
     close(fd_fifo_receiver);
   }
 
