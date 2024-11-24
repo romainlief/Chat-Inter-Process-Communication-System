@@ -16,7 +16,7 @@ char fifo_receiver[MAX_LEN_FIFO];
 void signal_management(int signa) {
   if (signa == SIGINT) {
     fclose(stdin);
-  } else if (signa == SIGPIPE) { // Ce cas n'arrive jamais, mais au cas ou nous le laissons
+  } else if (signa == SIGPIPE) {
     printf("pipe\n");
     fclose(stdin);
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
   sharedMemo *buffer = shared_memory_initializer(memory_size);
 
   pid_t fork_return = fork();
-  if (fork_return == -1) {
+  if (fork_return < 0) {
     perror("fork()");
     return 6;
   }
@@ -101,7 +101,9 @@ int main(int argc, char *argv[]) {
     }
     close(fd_fifo_sender);
 
-  } else {
+  } else if (fork_return == 0)
+    
+   {
     char temp[BUFFER_SIZE];
 
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
@@ -132,7 +134,7 @@ int main(int argc, char *argv[]) {
 
         fflush(stdout); // Permet d'émettre son directement
       }
-      fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
+      // fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
     }
     
     close(fd_fifo_receiver);
@@ -147,6 +149,6 @@ int main(int argc, char *argv[]) {
   // printf("Interuption\n");
   unlink(fifo_sender);
   unlink(fifo_receiver);
-
+  clean_shared_memo(buffer);
   return 0;
 }
