@@ -94,11 +94,6 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-    // ssize_t verif = write(fd_fifo_sender, "\0", sizeof("\0"));
-    // if (verif < 0) {
-    //   perror("write()");
-    //   exit(1);
-    // }
 
     close(fd_fifo_sender);
 
