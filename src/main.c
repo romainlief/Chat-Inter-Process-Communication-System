@@ -94,11 +94,6 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-    // ssize_t verif = write(fd_fifo_sender, "\0", sizeof("\0"));
-    // if (verif < 0) {
-    //   perror("write()");
-    //   exit(1);
-    // }
 
     close(fd_fifo_sender);
 
@@ -107,12 +102,12 @@ int main(int argc, char *argv[]) {
     sigaction(SIGPIPE, &sa, NULL);
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
-    while (read(fd_fifo_receiver, temp, sizeof(temp))) {
+    while (read(fd_fifo_receiver, temp, sizeof(temp)) ) {
       if (!manuel_mode) {
         if (bot_mode) {
           printf("[%s]: %s", pseudo_destinataire, temp);
         } else {
-          printf("[\x1B[4m%s\x1B[0m]: %s", pseudo_destinataire, temp);
+          printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire, temp);
         }
         fflush(stdout);
       }
@@ -133,16 +128,17 @@ int main(int argc, char *argv[]) {
       }
       fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
     }
-
+    
     close(fd_fifo_receiver);
   }
-
+  
   while (buffer->offset > 0) {
     printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire, getString(buffer));
     fflush(stdout);
   }
-  kill(fork_return, SIGINT);
-  printf("Interuption\n");
+  // kill(fork_return, SIGINT);
+  
+  // printf("Interuption\n");
   unlink(fifo_sender);
   unlink(fifo_receiver);
 
