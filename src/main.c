@@ -15,7 +15,9 @@ void signal_management(int signa) {
   if (signa == SIGINT) {
     fclose(stdin);
   } else if (signa == SIGPIPE) { // Ce cas n'arrive jamais, mais au cas ou nous le laissons
+    printf("ici");
     fclose(stdin);
+
   }
 }
 
@@ -92,11 +94,11 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-    ssize_t verif = write(fd_fifo_sender, "\0", sizeof("\0"));
-    if (verif < 0) {
-      perror("write()");
-      exit(1);
-    }
+    // ssize_t verif = write(fd_fifo_sender, "\0", sizeof("\0"));
+    // if (verif < 0) {
+    //   perror("write()");
+    //   exit(1);
+    // }
 
     close(fd_fifo_sender);
 
@@ -105,8 +107,7 @@ int main(int argc, char *argv[]) {
     sigaction(SIGPIPE, &sa, NULL);
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
-    while (read(fd_fifo_receiver, temp, sizeof(temp)) > 0 &&
-           !(strcmp(temp, "\0") == 0)) {
+    while (read(fd_fifo_receiver, temp, sizeof(temp))) {
       if (!manuel_mode) {
         if (bot_mode) {
           printf("[%s]: %s", pseudo_destinataire, temp);
