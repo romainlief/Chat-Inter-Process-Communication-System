@@ -3,6 +3,8 @@
 #include "arg_verif.h"
 #include "memory.h"
 #include "pipe_manager.h"
+#include <stdio.h>
+#include <unistd.h>
 
 
 // Variables globales
@@ -15,7 +17,7 @@ void signal_management(int signa) {
   if (signa == SIGINT) {
     fclose(stdin);
   } else if (signa == SIGPIPE) { // Ce cas n'arrive jamais, mais au cas ou nous le laissons
-    printf("ici");
+    printf("pipe\n");
     fclose(stdin);
 
   }
@@ -62,10 +64,13 @@ int main(int argc, char *argv[]) {
 
   if (fork_return > 0) {
     sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGPIPE, &sa, NULL);
+
 
     int fd_fifo_sender = open(fifo_sender, O_WRONLY);
-
+    
     while (1) {
+      
       liste_t ls = getDynamicString();
       if (ls.valeurs == NULL) {
         break;
@@ -94,18 +99,19 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-
     close(fd_fifo_sender);
 
   } else {
     char temp[BUFFER_SIZE];
-    sigaction(SIGPIPE, &sa, NULL);
+
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
     while (read(fd_fifo_receiver, temp, sizeof(temp)) ) {
+
+      
       if (!manuel_mode) {
         if (bot_mode) {
-          printf("[%s]: %s", pseudo_destinataire, temp);
+          printf("[%s] %s", pseudo_destinataire, temp);
         } else {
           printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire, temp);
         }
@@ -130,13 +136,13 @@ int main(int argc, char *argv[]) {
     }
     
     close(fd_fifo_receiver);
+    
   }
   
   while (buffer->offset > 0) {
     printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire, getString(buffer));
     fflush(stdout);
   }
-  // kill(fork_return, SIGINT);
   
   // printf("Interuption\n");
   unlink(fifo_sender);
