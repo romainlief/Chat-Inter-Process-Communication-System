@@ -1,12 +1,6 @@
 // Inclusions
 #include "main.h"
-#include "arg_verif.h"
-#include "memory.h"
-#include "pipe_manager.h"
-#include <signal.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <unistd.h>
+
 
 
 // Variables globales
@@ -23,6 +17,7 @@ void signal_management(int signa) {
     }
     else{
       fclose(stdin);
+      exit(4);
     }
   } else if (signa == SIGPIPE) {
     printf("pipe\n");
@@ -33,6 +28,7 @@ void signal_management(int signa) {
 
 
 int main(int argc, char *argv[]) {
+
   if (min_argc(argc)) {
     return 1;
   }
@@ -57,7 +53,7 @@ int main(int argc, char *argv[]) {
   concatener_pipes(fifo_receiver, pseudo_destinataire, pseudo_utilisateur);
 
   initialiser_pipes(fifo_sender, fifo_receiver);
-
+  
   size_t memory_size = 1;
   if (manuel_mode) {
     memory_size = MAX_MEMORY_SIZE;
@@ -67,7 +63,6 @@ int main(int argc, char *argv[]) {
   sigaction(SIGINT, &sa, NULL);
   sigaction(SIGPIPE, &sa, NULL);
 
-
   pid_t fork_return = fork();
   if (fork_return < 0) {
     perror("fork()");
@@ -75,17 +70,18 @@ int main(int argc, char *argv[]) {
   }
 
   if (fork_return > 0) {
-    if(!manuel_mode){
-      sigignore(SIGINT);
-    }
+    
 
     int fd_fifo_sender = open(fifo_sender, O_WRONLY);
     char* tempStr = NULL;
     size_t size = 0;
     
+    if(!manuel_mode){
+      sigignore(SIGINT);
+    }
+    
     ssize_t code;
     while ((code = getline(&tempStr, &size, stdin) )) {
-      
       if(code == -1){
         if (vider){
         while (buffer->offset > 0) {
@@ -98,6 +94,7 @@ int main(int argc, char *argv[]) {
         }
         else{
           break;
+          
         }
       }
       
