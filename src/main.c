@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
         vider = false;
       }
 
-      sleep(1);
+      usleep(10000);
     }    
     close(fd_fifo_sender);
 
