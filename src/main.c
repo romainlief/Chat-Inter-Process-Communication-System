@@ -3,6 +3,7 @@
 #include "arg_verif.h"
 #include "memory.h"
 #include "pipe_manager.h"
+#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <sys/_types/_ssize_t.h>
@@ -63,6 +64,10 @@ int main(int argc, char *argv[]) {
     memory_size = MAX_MEMORY_SIZE;
   } 
   sharedMemo *buffer = shared_memory_initializer(memory_size);
+  
+  sigaction(SIGINT, &sa, NULL);
+  sigaction(SIGPIPE, &sa, NULL);
+
 
   pid_t fork_return = fork();
   if (fork_return < 0) {
@@ -71,8 +76,6 @@ int main(int argc, char *argv[]) {
   }
 
   if (fork_return > 0) {
-    sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGPIPE, &sa, NULL);
 
     int fd_fifo_sender = open(fifo_sender, O_WRONLY);
     char* tempStr = NULL;
@@ -125,7 +128,7 @@ int main(int argc, char *argv[]) {
   } else if (fork_return == 0)
     
    {
-    sigaction(SIGINT, &sa, NULL);
+    sigignore(SIGINT);
 
     char temp[BUFFER_SIZE];
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
