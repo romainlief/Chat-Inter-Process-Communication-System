@@ -1,5 +1,6 @@
 // Inclusions
 #include "main.h"
+#include <unistd.h>
 
 
 // Variables globales
@@ -7,6 +8,7 @@ char fifo_sender[MAX_LEN_FIFO];
 char fifo_receiver[MAX_LEN_FIFO];
 
 bool vider = false;
+
 
 // Fonctions
 void signal_management(int signa) {
@@ -16,6 +18,8 @@ void signal_management(int signa) {
     }
     else{
       fclose(stdin);
+      unlink(fifo_receiver);
+      unlink(fifo_sender);
       exit(4);
     }
   } else if (signa == SIGPIPE) {
@@ -80,7 +84,7 @@ int main(int argc, char *argv[]) {
     }
     
     ssize_t code;
-    while ((code = getline(&tempStr, &size, stdin) )) {
+    while ((code = getline(&tempStr, &size, stdin))) {
       if(code == -1){
         if (vider){
         while (buffer->offset > 0) {
@@ -99,6 +103,7 @@ int main(int argc, char *argv[]) {
       
       char temp[size];
       memcpy(temp, tempStr, size);
+
       if (!bot_mode) {
         // S'effectue un nombre indéterminé de fois avant de s'arrêter
         printf("[\x1B[4m%s\x1B[0m] %s", pseudo_utilisateur, temp);
@@ -107,10 +112,13 @@ int main(int argc, char *argv[]) {
 
       ssize_t ecriture = write(fd_fifo_sender, temp, sizeof(temp));
 
+
+
       if (ecriture == -1) {
         perror("write()");
         break;
       }
+
 
       if (manuel_mode || vider) {
         while (buffer->offset > 0) {
@@ -120,11 +128,11 @@ int main(int argc, char *argv[]) {
         }
         vider = false;
       }
-    }
 
-    write(fd_fifo_sender, "\0", sizeof("\0"));
-
+      sleep(1);
+    }    
     close(fd_fifo_sender);
+
 
   } else if (fork_return == 0)
    {
@@ -134,16 +142,14 @@ int main(int argc, char *argv[]) {
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
     while (read(fd_fifo_receiver, temp, sizeof(temp)) > 0) {
-      if(strcmp(temp, "\0") == 0){
-        
-        break;
 
-      }
       if (!manuel_mode) {
         if (bot_mode) {
           printf("[%s] %s", pseudo_destinataire, temp);
+          
         } else {
           printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire, temp);
+
         }
         fflush(stdout);
       }
