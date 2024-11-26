@@ -2,7 +2,6 @@
 #include "main.h"
 
 
-
 // Variables globales
 char fifo_sender[MAX_LEN_FIFO];
 char fifo_receiver[MAX_LEN_FIFO];
@@ -20,7 +19,7 @@ void signal_management(int signa) {
       exit(4);
     }
   } else if (signa == SIGPIPE) {
-    printf("pipe\n");
+    // printf("pipe\n");
     fclose(stdin);
 
   }
@@ -122,18 +121,24 @@ int main(int argc, char *argv[]) {
         vider = false;
       }
     }
+
+    write(fd_fifo_sender, "\0", sizeof("\0"));
+
     close(fd_fifo_sender);
 
   } else if (fork_return == 0)
-    
    {
     sigignore(SIGINT);
 
     char temp[BUFFER_SIZE];
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
-    while (read(fd_fifo_receiver, temp, sizeof(temp)) ) {
-      
+    while (read(fd_fifo_receiver, temp, sizeof(temp)) > 0) {
+      if(strcmp(temp, "\0") == 0){
+        
+        break;
+
+      }
       if (!manuel_mode) {
         if (bot_mode) {
           printf("[%s] %s", pseudo_destinataire, temp);
@@ -159,6 +164,8 @@ int main(int argc, char *argv[]) {
       }
       
     }
+    kill(getppid(), SIGPIPE);
+    
     close(fd_fifo_receiver);
     
   }
@@ -167,8 +174,6 @@ int main(int argc, char *argv[]) {
     printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire, getString(buffer));
     fflush(stdout);
   }
-  
-  // printf("Interuption\n");
   unlink(fifo_sender);
   unlink(fifo_receiver);
   clean_shared_memo(buffer);

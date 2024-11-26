@@ -64,13 +64,13 @@ while read -r input <&"${MY_PROC[0]}"; do
         echo "$dest" >&"${MY_PROC[1]}"
 
     elif [[ "$(echo "$entry" | xargs)" == "au revoir" ]]; then
-        echo "Au revoir $dest." >&"${MY_PROC[1]}"
+        # echo "Au revoir $dest." >&"${MY_PROC[1]}"
 
         exit 0
     else
         ret=$(readFile "$entry")
         if [[ "$ret" == "" ]]; then
-            echo "🤖?" >&"${MY_PROC[1]}"
+            echo "🤖 ?" >&"${MY_PROC[1]}"
         else
             echo "$ret" >&"${MY_PROC[1]}"
         fi
