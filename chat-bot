@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/bin/bash
 
 #TODO: rediriger les entrées et sorties standards vers ce script
 
@@ -52,7 +52,7 @@ while read -r input <&"${MY_PROC[0]}"; do
         
         # vérifier si le fichier existe
         elif [ -f $2 ]; then
-            echo "$(cat) $2" >&"${MY_PROC[1]}"
+            echo "$(cat "$2")" >&"${MY_PROC[1]}"
         
         # le fichier n'existe pas
         else
