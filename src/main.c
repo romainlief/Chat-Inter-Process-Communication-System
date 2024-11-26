@@ -6,7 +6,6 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <sys/_types/_ssize_t.h>
 #include <unistd.h>
 
 
@@ -76,6 +75,9 @@ int main(int argc, char *argv[]) {
   }
 
   if (fork_return > 0) {
+    if(!manuel_mode){
+      sigignore(SIGINT);
+    }
 
     int fd_fifo_sender = open(fifo_sender, O_WRONLY);
     char* tempStr = NULL;
