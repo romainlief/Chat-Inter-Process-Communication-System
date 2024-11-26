@@ -92,8 +92,16 @@ représentant la mémoire elle-même. \\En ce qui concerne son fonctionnement, n
 permet de récupérer facilement le premier string entré grâce au principe "first-in, first-out". Nous retrouvons les fonctions pour lire et écrire, ainsi
 que celles pour initialiser la mémoire et la désallouer. Une fonction permettant la lecture complète la mémoire est également mais non-utilisée.
 Finalement, chaque étape critique de la vie de la mémoire partagée est complémentée par de la gestion d'erreurs pour s'assurer de son bon fonctionnement.}
+
 \subsection{Communication inter-processus}
-\paragraph{}
+\paragraph{Au début nous avions fait le choix d'implémenter la communication inter-processus selon le principe
+ suivant, nous avions fait en sorte que le premier processus ouvre les deux fifos en mode writter et le second en mode reader.
+ Nous avons utilisé un fork afin que toutes les entrées soient ouverte et que l'écriture soit possible à partie de n'importe où.
+ Au final, nous avons abandonné cette approche pour une autre car celle-ci empaichait les signaux 
+ SIGPIPE de se déclencher en raison du fait que les deux entrées étaient ouvertes deux fois, donc la fermerture n'était pas détectée.
+ Au final, nous avons opté pour une ouverture du pipe d'envoie en mode écriture et le pipe de 
+ récepeption en mode lecture tandis que le deuxième processus fait le contraire. Ainsi nous avons une ouverture de chaque signaux ce qui permet de détecter les signaux SIGPIPE.}
+ 
 
 \section{Difficultés Rencontrées et Solutions}
 
@@ -122,6 +130,10 @@ nous avons utilisé des concepts vu lors du premier Tp d'introduction ou nous de
 liste en la doublant tout en utilisant malloc pour allouer la mémoire afin que celle-ci ne sépuise pas.
 De plus, évidemmment, un changement de ce genre en dernière minute a des conséquences sur le reste du code, cela a provoqué 
 des bugs que nous avons du corriger.}
+
+\subsection{Quatrième difficultée: Communication inter-processus}
+\paragraph{ La difficultée principe fut de savoir à partir de quel processus, enfant ou père généré par le fork, imprimer les messages reçus dans le mode manuel.}
+
 
 
 \section{Solutions Originales et Améliorations}

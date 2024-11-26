@@ -70,7 +70,7 @@ while read -r input <&"${MY_PROC[0]}"; do
     else
         ret=$(readFile "$entry")
         if [[ "$ret" == "" ]]; then
-            echo "🤖 ?" >&"${MY_PROC[1]}"
+            echo "🤖?" >&"${MY_PROC[1]}"
         else
             echo "$ret" >&"${MY_PROC[1]}"
         fi

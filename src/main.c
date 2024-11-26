@@ -3,7 +3,9 @@
 #include "arg_verif.h"
 #include "memory.h"
 #include "pipe_manager.h"
+#include <stdbool.h>
 #include <stdio.h>
+#include <sys/_types/_ssize_t.h>
 #include <unistd.h>
 
 
@@ -11,11 +13,17 @@
 char fifo_sender[MAX_LEN_FIFO];
 char fifo_receiver[MAX_LEN_FIFO];
 
+bool vider = false;
 
 // Fonctions
 void signal_management(int signa) {
   if (signa == SIGINT) {
-    fclose(stdin);
+    if(manuel_mode){
+      vider = true;
+    }
+    else{
+      fclose(stdin);
+    }
   } else if (signa == SIGPIPE) {
     printf("pipe\n");
     fclose(stdin);
@@ -66,19 +74,30 @@ int main(int argc, char *argv[]) {
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGPIPE, &sa, NULL);
 
-
     int fd_fifo_sender = open(fifo_sender, O_WRONLY);
+    char* tempStr = NULL;
+    size_t size = 0;
     
-    while (1) {
+    ssize_t code;
+    while ((code = getline(&tempStr, &size, stdin) )) {
       
-      liste_t ls = getDynamicString();
-      if (ls.valeurs == NULL) {
-        break;
+      if(code == -1){
+        if (vider){
+        while (buffer->offset > 0) {
+          printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire,
+                 getString(buffer));
+          fflush(stdout);
+        }
+        vider = false;
+        continue;
+        }
+        else{
+          break;
+        }
       }
-      char temp[ls.taille_reelle];
-      strcpy(temp, ls.valeurs);
-      free(ls.valeurs);
       
+      char temp[size];
+      memcpy(temp, tempStr, size);
       if (!bot_mode) {
         // S'effectue un nombre indéterminé de fois avant de s'arrêter
         printf("[\x1B[4m%s\x1B[0m] %s", pseudo_utilisateur, temp);
@@ -86,17 +105,19 @@ int main(int argc, char *argv[]) {
       }
 
       ssize_t ecriture = write(fd_fifo_sender, temp, sizeof(temp));
+
       if (ecriture == -1) {
         perror("write()");
         break;
       }
 
-      if (manuel_mode) {
+      if (manuel_mode || vider) {
         while (buffer->offset > 0) {
           printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire,
                  getString(buffer));
           fflush(stdout);
         }
+        vider = false;
       }
     }
     close(fd_fifo_sender);
@@ -104,12 +125,12 @@ int main(int argc, char *argv[]) {
   } else if (fork_return == 0)
     
    {
-    char temp[BUFFER_SIZE];
+    sigaction(SIGINT, &sa, NULL);
 
+    char temp[BUFFER_SIZE];
     int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
     while (read(fd_fifo_receiver, temp, sizeof(temp)) ) {
-
       
       if (!manuel_mode) {
         if (bot_mode) {
@@ -134,9 +155,8 @@ int main(int argc, char *argv[]) {
 
         fflush(stdout); // Permet d'émettre son directement
       }
-      // fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
+      
     }
-    
     close(fd_fifo_receiver);
     
   }

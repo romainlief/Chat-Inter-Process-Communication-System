@@ -69,6 +69,6 @@ void etendre_liste(liste_t* liste);
  * Récupère un input de taille variable.
  * @return Une instance de liste_t de taille variable en fonction des inputs
  */
-liste_t getDynamicString();
+void getDynamicString(char* iput, liste_t* ls);
 
 #endif // MEMORY_H

@@ -109,46 +109,17 @@ void etendre_liste(liste_t* liste) {
     liste->valeurs = new_vals;
 }
 
-liste_t getDynamicString() {
-  liste_t liste = {0, INIT_MALLOC_SIZE, NULL};
-  liste.valeurs = malloc(liste.taille_reelle);
+void getDynamicString(char* iput, liste_t* ls) {
 
-  if (liste.valeurs == NULL) {
-    perror("malloc()");
-    exit(1);
+  size_t str_len = strlen(iput);
+  
+  if (ls->taille_logique + str_len + 1 >= ls->taille_reelle) {
+    etendre_liste(ls);
   }
 
-  char str[CHUNK] = {0};
-  bool flag = false;
-  size_t str_len = CHUNK;
+  // Ajouter la chaîne au buffer
+  memcpy(ls->valeurs + ls->taille_logique, iput, str_len);
+  ls->taille_logique += str_len;
 
-  while (str_len >= CHUNK || flag) {
-    if (fgets(str, sizeof(str), stdin) ==  NULL) { // Gestion de EOF
-      free(liste.valeurs);
-      liste.valeurs = NULL;
-      return liste;
-    }
-
-    str_len = strlen(str);
-
-    if (str_len == (CHUNK - 1) && str[str_len - 1] != '\n') { // Potentiellement encore de l'input à lire
-      flag = true; // Pour faire tourner la boucle une fois de plus
-    }
-
-    if (flag && str_len < (CHUNK - 1)) {
-      flag = false;
-    }
-
-    // Étendre la liste si nécessaire
-    if (liste.taille_logique + str_len + 1 >= liste.taille_reelle) {
-      etendre_liste(&liste);
-    }
-
-    // Ajouter la chaîne au buffer
-    memcpy(liste.valeurs + liste.taille_logique, str, str_len);
-    liste.taille_logique += str_len;
-  }
-
-  liste.valeurs[liste.taille_logique] = '\0';
-  return liste;
+  ls->valeurs[ls->taille_logique] = '\0';
 }
