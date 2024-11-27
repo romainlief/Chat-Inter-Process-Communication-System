@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 
 #TODO: rediriger les entrées et sorties standards vers ce script
 

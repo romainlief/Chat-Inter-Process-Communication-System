@@ -29,3 +29,14 @@ void initialiser_signal_action(struct sigaction *sa, void (*handler)(int)) {
     sigemptyset(&sa->sa_mask);
     sa->sa_flags = 0;
 }
+
+void configurer_signaux(struct sigaction *sa) {
+    sigaction(SIGINT, sa, NULL);
+    sigaction(SIGPIPE, sa, NULL);
+}
+
+
+void cleanning_fifos(const char *fifo_sender, const char *fifo_receiver) {
+    unlink(fifo_sender);
+    unlink(fifo_receiver);
+}

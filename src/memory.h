@@ -71,4 +71,10 @@ void etendre_liste(liste_t* liste);
  */
 void getDynamicString(char* iput, liste_t* ls);
 
+/**
+ * Gère les erreurs d'écriture.
+ * @param ecriture Résultat de l'écriture
+ */
+void handle_write_error(ssize_t ecriture);
+
 #endif // MEMORY_H

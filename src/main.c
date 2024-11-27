@@ -2,7 +2,6 @@
 #include "main.h"
 
 
-
 int main(int argc, char *argv[]) {
   min_argc(argc);
   char *pseudo_utilisateur = argv[1]; // Récupération des pseudos
@@ -10,117 +9,26 @@ int main(int argc, char *argv[]) {
   struct sigaction sa;
   initialiser_signal_action(&sa, signal_management);
   initialiser_et_verifier(argc, argv, pseudo_utilisateur, pseudo_destinataire, fifo_sender, fifo_receiver, &bot_mode, &manuel_mode);
-  size_t memory_size = 1;
-
-  if (manuel_mode) {
-    memory_size = MAX_MEMORY_SIZE;
-}
+  size_t memory_size = manuel_mode ? MAX_MEMORY_SIZE : 1;
   sharedMemo *buffer = shared_memory_initializer(memory_size);
-
-  sigaction(SIGINT, &sa, NULL);
-  sigaction(SIGPIPE, &sa, NULL);
-
+  configurer_signaux(&sa);
   pid_t fork_return = fork();
-  if (fork_return < 0) {
-    perror("fork()");
-    return 6;
-  }
+  handle_fork_error(fork_return);
 
-  if (fork_return > 0)
-  {
+  if (fork_return > 0) {
     int fd_fifo_sender = open(fifo_sender, O_WRONLY);
-    char *tempStr = NULL;
-    size_t size = 0;
-    if (!manuel_mode) {
-      sigignore(SIGINT);
-    }
-
-    ssize_t code;
-    while ((code = getline(&tempStr, &size, stdin)))
-    {
-      if (code == -1) {
-        if (vider) {
-          while (buffer->offset > 0) {
-            printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire,
-                   getString(buffer));
-            fflush(stdout);
-          }
-          vider = false;
-          clearerr(stdin);
-          continue;
-        }
-        else {
-          break;
-        }
-      }
-
-      char temp[size];
-      memcpy(temp, tempStr, size);
-
-      if (!bot_mode) {
-        printf("[\x1B[4m%s\x1B[0m] %s", pseudo_utilisateur, temp); // S'effectue un nombre indéterminé de fois avant de s'arrêter
-        fflush(stdout);
-      }
-
-      ssize_t ecriture = write(fd_fifo_sender, temp, sizeof(temp));
-
-      if (ecriture == -1) {
-        perror("write()");
-        break;
-      }
-
-      if (manuel_mode || vider) {
-        while (buffer->offset > 0) {
-          printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire,
-                 getString(buffer));
-          fflush(stdout);
-        }
-        vider = false;
-      }
-
-      usleep(10000);
-    }
-    close(fd_fifo_sender);
+    handle_parent_process(fd_fifo_sender, buffer, pseudo_utilisateur, pseudo_destinataire);
   }
+
   else if (fork_return == 0) {
-    sigignore(SIGINT);
-
-    char temp[BUFFER_SIZE];
-    int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
-
-    while (read(fd_fifo_receiver, temp, sizeof(temp)) > 0) {
-      if (!manuel_mode) {
-        if (bot_mode) {
-          printf("[%s] %s", pseudo_destinataire, temp);
-        }
-        else {
-          printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire, temp);
-        }
-        fflush(stdout);
-      }
-      else {
-        int max = write_shared(buffer, temp);
-        printf("\a");
-        if (max == 1) {
-          while (buffer->offset > 0) {
-            printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire,
-                   getString(buffer));
-          }
-          write_shared(buffer, temp);
-        }
-        fflush(stdout); // Permet d'émettre son directement
-      }
-    }
-    kill(getppid(), SIGPIPE);
-    close(fd_fifo_receiver);
+    handle_child_process(buffer, pseudo_destinataire);
   }
 
   while (buffer->offset > 0) {
     printf("[\x1B[4m%s\x1B[0m] %s", pseudo_destinataire, getString(buffer));
     fflush(stdout);
   }
-  unlink(fifo_sender);
-  unlink(fifo_receiver);
+  cleanning_fifos(fifo_sender, fifo_receiver);
   clean_shared_memo(buffer);
   return 0;
-}
+  }

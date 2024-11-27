@@ -40,4 +40,19 @@ void signal_management(int signa);
  */
 void initialiser_signal_action(struct sigaction *sa, void (*handler)(int));
 
+/**
+ * @brief Configure les signaux SIGINT et SIGPIPE.
+ * 
+ * @param sa la structure sigaction
+ */
+void configurer_signaux(struct sigaction *sa);
+
+/**
+ * @brief unilink les deux fifos.
+ * 
+ * @param fifo_sender le fifo sender
+ * @param fifo_receiver le fifo receiver
+ */
+void cleanning_fifos(const char *fifo_sender, const char *fifo_receiver);
+
 #endif // SIG_H

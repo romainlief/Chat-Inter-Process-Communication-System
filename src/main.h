@@ -7,9 +7,9 @@
 #include "pipe_manager.h"
 #include "sig.h"
 #include "init.h"
+#include "fork_verif.h"
 
 #include <errno.h>
-#include <fcntl.h>
 #include <pthread.h>
 #include <signal.h>
 #include <stdio.h>

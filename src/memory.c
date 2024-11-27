@@ -123,3 +123,10 @@ void getDynamicString(char* iput, liste_t* ls) {
 
   ls->valeurs[ls->taille_logique] = '\0';
 }
+
+void handle_write_error(ssize_t ecriture) {
+  if (ecriture == -1) {
+    perror("write()");
+    exit(EXIT_FAILURE);
+  }
+}
