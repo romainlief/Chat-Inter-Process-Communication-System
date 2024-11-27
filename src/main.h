@@ -6,6 +6,7 @@
 #include "memory.h"
 #include "pipe_manager.h"
 #include "sig.h"
+#include "init.h"
 
 #include <errno.h>
 #include <fcntl.h>

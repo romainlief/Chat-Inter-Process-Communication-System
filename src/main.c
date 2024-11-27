@@ -1,6 +1,7 @@
 // Inclusions
 #include "main.h"
 
+
 int main(int argc, char *argv[]) {
   min_argc(argc);
 
@@ -11,14 +12,8 @@ int main(int argc, char *argv[]) {
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
 
-  verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire); // Vérification des erreurs
-  verification_param_optinnel(argc, argv, &bot_mode, &manuel_mode); // Gestion des options --bot et --manuel
+  initialiser_et_verifier(argc, argv, pseudo_utilisateur, pseudo_destinataire, fifo_sender, fifo_receiver, &bot_mode, &manuel_mode);
 
-  // Création des deux path pipes en concaténant les pseudos
-  concatener_pipes(fifo_sender, pseudo_utilisateur, pseudo_destinataire);
-  concatener_pipes(fifo_receiver, pseudo_destinataire, pseudo_utilisateur);
-
-  initialiser_pipes(fifo_sender, fifo_receiver);
 
   size_t memory_size = 1;
   if (manuel_mode)

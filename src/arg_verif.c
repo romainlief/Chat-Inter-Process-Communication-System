@@ -13,8 +13,8 @@ int min_argc(int argc) {
   return 0;
 }
 
-int verifier_erreurs(int argc, char *pseudo_utilisateur,
-                     char *pseudo_destinataire) {
+int verifier_erreurs(int argc, const char *pseudo_utilisateur, const char *pseudo_destinataire) 
+ {
   if (argc > 5) {
     fprintf(stderr, "Erreur: Trop d'arguments\n");
     exit(5);
@@ -67,3 +67,6 @@ void verification_param_optinnel(int argc, char *argv[], int *bot_mode,
     }
   }
 }
+
+
+

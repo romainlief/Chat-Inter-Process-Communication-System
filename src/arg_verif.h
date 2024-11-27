@@ -31,8 +31,7 @@ int min_argc(int argc);
  * @param pseudo_destinataire Pseudo du destinataire
  * @return 0 si aucune erreur, sinon le code d'erreur.
  */
-int verifier_erreurs(int argc, char *pseudo_utilisateur,
-                     char *pseudo_destinataire);
+int verifier_erreurs(int argc, const char *pseudo_utilisateur, const char *pseudo_destinataire);
 
 /**
  * Vérifie si les paramètres optionnels --bot et --manuel sont présents et si
@@ -44,5 +43,6 @@ int verifier_erreurs(int argc, char *pseudo_utilisateur,
  */
 void verification_param_optinnel(int argc, char *argv[], int *bot_mode,
                                  int *manuel_mode);
+
 
 #endif // ARG_VERIF_H
