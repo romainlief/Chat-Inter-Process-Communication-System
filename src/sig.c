@@ -1,5 +1,5 @@
 #include "sig.h"
-
+#include "global.h"
 
 int manuel_mode;
 bool vider;

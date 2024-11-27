@@ -1,4 +1,5 @@
 #include "init.h"
+#include "global.h"
 
 void initialiser_et_verifier(int argc, char *argv[], const char *pseudo_utilisateur, const char *pseudo_destinataire, char *fifo_sender, char *fifo_receiver, int *bot_mode, int *manuel_mode) {
   verifier_erreurs(argc, pseudo_utilisateur, pseudo_destinataire);

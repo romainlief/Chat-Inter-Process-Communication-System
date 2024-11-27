@@ -8,6 +8,7 @@
 #include "sig.h"
 #include "init.h"
 #include "fork_verif.h"
+#include "global.h"
 
 #include <errno.h>
 #include <pthread.h>

@@ -1,4 +1,5 @@
 #include "arg_verif.h"
+#include "global.h"
 
 // Variables globales
 int bot_mode = 0;
