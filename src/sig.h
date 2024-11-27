@@ -8,8 +8,6 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-// Structures
-struct sigaction sa; // Structure pour la gestion des signaux
 
 // Variables globales
 extern int manuel_mode;

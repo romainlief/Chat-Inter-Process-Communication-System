@@ -1,10 +1,8 @@
 #include "sig.h"
 #include "global.h"
 
-int manuel_mode;
-bool vider;
-char fifo_sender[MAX_LEN_FIFO];  
-char fifo_receiver[MAX_LEN_FIFO];
+
+
 
 void signal_management(int signa) {
   if (signa == SIGINT) {
