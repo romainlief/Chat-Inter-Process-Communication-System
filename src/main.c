@@ -93,6 +93,7 @@ int main(int argc, char *argv[]) {
           fflush(stdout);
         }
         vider = false;
+        clearerr(stdin);
         continue;
         }
         else{
