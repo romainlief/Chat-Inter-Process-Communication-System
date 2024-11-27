@@ -32,4 +32,12 @@ extern char fifo_receiver[MAX_LEN_FIFO]; // Chemin du pipe receiver
  */
 void signal_management(int signa);
 
+/**
+ * @brief Initialise la structure sigaction.
+ * 
+ * @param sa la structure sigaction
+ * @param handler le handler du signal
+ */
+void initialiser_signal_action(struct sigaction *sa, void (*handler)(int));
+
 #endif // SIG_H

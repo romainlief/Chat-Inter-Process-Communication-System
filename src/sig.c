@@ -23,3 +23,9 @@ void signal_management(int signa) {
 
   }
 }
+
+void initialiser_signal_action(struct sigaction *sa, void (*handler)(int)) {
+    sa->sa_handler = handler;
+    sigemptyset(&sa->sa_mask);
+    sa->sa_flags = 0;
+}
