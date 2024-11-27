@@ -19,6 +19,7 @@
 #include "memory.h"
 #include "pipe_manager.h"
 #include <stdbool.h>
+#include <sys/_types/_ssize_t.h>
 
 // Constantes
 #define MAX_LEN_FIFO 72 // Taille fifo max=72 (5 + 30 + 1 + 30 + 5 + 1)
