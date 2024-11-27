@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/bin/bash
 
 declare -i TEST_SUCCESS=0
 declare -i TEST_TOTAL=0

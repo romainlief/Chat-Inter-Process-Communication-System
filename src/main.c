@@ -21,8 +21,7 @@ int main(int argc, char *argv[]) {
   if (fork_return > 0) {
     int fd_fifo_sender = open(fifo_sender, O_WRONLY);
     handle_parent_process(fd_fifo_sender, buffer, pseudo_utilisateur, pseudo_destinataire); // Gestion du processus parent
-  }
-  else if (fork_return == 0) {
+  } else if (fork_return == 0) {
     handle_child_process(buffer, pseudo_destinataire); // Gestion du processus fils
   }
 
