@@ -8,7 +8,7 @@ int min_argc(int argc) {
   if (argc < 3) {
     fprintf(stderr,
             "chat pseudo_utilisateur pseudo_destinataire [--bot] [--manuel]\n");
-    return 1;
+    exit(1);
   }
   return 0;
 }
@@ -17,7 +17,7 @@ int verifier_erreurs(int argc, char *pseudo_utilisateur,
                      char *pseudo_destinataire) {
   if (argc > 5) {
     fprintf(stderr, "Erreur: Trop d'arguments\n");
-    return 5;
+    exit(5);
   }
 
   // Vérification de la longueur des pseudos
@@ -25,7 +25,7 @@ int verifier_erreurs(int argc, char *pseudo_utilisateur,
       strlen(pseudo_destinataire) > MAX_PSEUDO_LEN) {
     fprintf(stderr,
             "Erreur : Pseudo trop long, maximum 30 octets/caractères.\n");
-    return 2;
+    exit(2);
   }
 
   // Caractères interdits dans les pseudos
@@ -33,7 +33,7 @@ int verifier_erreurs(int argc, char *pseudo_utilisateur,
   if (strpbrk(pseudo_utilisateur, invalid_chars) ||
       strpbrk(pseudo_destinataire, invalid_chars)) {
     fprintf(stderr, "Erreur : Pseudo contient des caractères invalides.\n");
-    return 3;
+     exit(3);
   }
 
   // Si les pseudos sont "." ou ".." => erreur
@@ -42,7 +42,7 @@ int verifier_erreurs(int argc, char *pseudo_utilisateur,
       strcmp(pseudo_destinataire, ".") == 0 ||
       strcmp(pseudo_destinataire, "..") == 0) {
     fprintf(stderr, "Erreur : Pseudo invalide.\n");
-    return 3;
+    exit(3);
   }
 
   return 0;
