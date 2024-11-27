@@ -1,3 +1,6 @@
+// Devs: Manuel Rocca, Rares Radu-Loghin, Romain Liefferinckx
+// Date de rendu: 28/11/2024
+
 // Inclusions
 #include "main.h"
 
