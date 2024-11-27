@@ -50,6 +50,7 @@ void handle_parent_process(int fd_fifo_sender, sharedMemo *buffer, char *pseudo_
     }
     usleep(10000);
   }
+  free(tempStr);
   close(fd_fifo_sender);
 }
 
