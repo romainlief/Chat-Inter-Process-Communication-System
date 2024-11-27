@@ -3,32 +3,6 @@
 #include <unistd.h>
 
 
-// Variables globales
-char fifo_sender[MAX_LEN_FIFO];
-char fifo_receiver[MAX_LEN_FIFO];
-
-bool vider = false;
-
-
-// Fonctions
-void signal_management(int signa) {
-  if (signa == SIGINT) {
-    if(manuel_mode){
-      vider = true;
-    }
-    else{
-      fclose(stdin);
-      unlink(fifo_receiver);
-      unlink(fifo_sender);
-      exit(4);
-    }
-  } else if (signa == SIGPIPE) {
-    // printf("pipe\n");
-    fclose(stdin);
-
-  }
-}
-
 
 int main(int argc, char *argv[]) {
 
