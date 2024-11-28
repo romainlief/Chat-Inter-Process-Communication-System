@@ -14,7 +14,7 @@ void handle_parent_process(int fd_fifo_sender, sharedMemo *buffer, char *pseudo_
   char *tempStr = NULL;
   size_t size = 0;
   if (!manuel_mode) {
-    sigignore(SIGINT);
+    signal(SIGINT, SIG_IGN);
   }
   ssize_t code;
   while ((code = getline(&tempStr, &size, stdin))) {
@@ -56,7 +56,7 @@ void handle_parent_process(int fd_fifo_sender, sharedMemo *buffer, char *pseudo_
 
 
 void handle_child_process(sharedMemo *buffer, char *pseudo_destinataire) {
-  sigignore(SIGINT);
+  signal(SIGINT, SIG_IGN);
   char temp[BUFFER_SIZE];
   int fd_fifo_receiver = open(fifo_receiver, O_RDONLY);
 
