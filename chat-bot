@@ -1,81 +1,112 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 
-#TODO: rediriger les entrées et sorties standards vers ce script
+############## VARIABLES GLOBALES ##############
+ERROR_MESSAGE="error"
+EXIT_MESSAGE="exit"
 
-readFile(){
-    #-r pour ignorer les caractères d'échappement
-    while read -r LINE; do
-        if [[ ${LINE%% *} == $1 ]]; then
-            echo "${LINE#* }"
-        fi
-    done < "liste-bot.txt"
-    echo ""
+
+############## FONCTIONS ##############
+
+# Vérifier les paramètres lors du lancement du programme
+# $1 -> destinataire
+# $2 -> récpteur
+checkParameters() {
+    # Vérifier si le nombre de paramètres est correct
+    if [ $# -lt 1 ] || [ $# -gt 2 ]; then # si moins d'un paramètre ou plus que deux
+        # >&2 pour rediriger le message vers la sortie standard d'erreur
+        echo "chat-bot destinataire [pseudo]" >&2
+        exit 1
+    fi
+
+    #s'il n'y a pas de 2e argument, le réceptionniste sera "bot" par défaut
+    if [ -z "$2" ]; then
+        rec="bot"
+    else
+        rec=$2  #récepteur
+    fi
+
+    dest=$1 #destinataire
 }
 
+# Fonction qui analyse le fichier liste-bot.txt pour s'assurer si l'argument donné
+# correspond à un mot dans le fichier
+readFile() {
+    result=""
+    # -r pour ignorer les caractères d'échappement
+    while read -r LINE; do
+        if [[ ${LINE%% *} == $1 ]]; then
+            result="${LINE#* }"
+        fi
+    done < "liste-bot.txt"
+    echo "$result"
+}
 
-#vérifier si le nombre de paramètres est correct
-if [ $# -lt 1 ] || [ $# -gt 2 ]; then #si moins d'un paramètre ou plus que deux
-    #>&2 pour rediriger le message vers la sortie standard d'erreur
-    echo "chat-bot destinataire [pseudo]" >&2
-    exit 1
-fi
+# Fonction qui ferme les pipes (pour évitér les memory leaks)
+cleanUp() {
+    exec {MY_PROC[0]}>&-  # Fermer le pipe en lecture
+    exec {MY_PROC[1]}>&-  # Fermer le pipe en écriture
+    # echo "Pipes fermés."
+}
 
-#s'il n'y a pas de 2e argument, le réceptionniste sera "bot" par défaut
-if [ -z "$2" ]; then
-    rec="bot"
-else
-    rec=$2  #receptionniste
-fi
+manageInput() {
 
-dest=$1 #destinataire
+    if [[ "$(echo "$1" | xargs)" == "liste" ]]; then
+        echo "$(ls)"
 
-coproc MY_PROC { ./chat "$rec" "$dest" --bot; }
-
-
-
-while read -r input <&"${MY_PROC[0]}"; do
-    entry="${input#* }"
-
-
-    if [[ "$(echo "$entry" | xargs)" == "liste" ]]; then
-        echo "$(ls)" >&"${MY_PROC[1]}"
-
-    # identifier la commande li, séparément du nom du fichier
-    elif [[ "$(echo "$entry" | xargs)" =~ ^li\   ]] || [ "$(echo "$entry" | xargs)" == "li" ]; then 
-        # diviser la commande en "li" et "FICHIER"
-        set -- $entry
+    # Identification de la commande li, séparément du nom du fichier
+    elif [[ "$(echo "$1" | xargs)" =~ ^li\   ]] || [ "$(echo "$1" | xargs)" == "li" ]; then 
+        # Division de la commande en "li" et "FICHIER"
+        set -- $1
         
-        # vérifier si il y a bien un argument
+        # Vérification de si il y a bien un argument
         if [ $# -eq 1 ] || [ $# -gt 2 ]; then
             echo "La commande 'li' requiert un argument." >&2
-            exit 1
+            echo "$ERROR_MESSAGE"
         
-        # vérifier si le fichier existe
+        # Vérification de si le fichier existe
         elif [ -f $2 ]; then
-            # echo "$(cat "$2")"
-            # echo "$(cat "$2")" >&"${MY_PROC[1]}"
-            cat "$2" >&"${MY_PROC[1]}"
-            echo "" >&"${MY_PROC[1]}"
+            local retInput=$(cat "$2")
+            retInput+=""
+            echo "$retInput"
         
-        # le fichier n'existe pas
+        # Le fichier n'existe pas
         else
-            echo "Le fichier $2 n'existe pas dans le répertoire courant" >&2
-            exit 1
+            echo "Le fichier $2 n'existe pas dans le répertoire courant." >&2
+            echo "$ERROR_MESSAGE"
         fi        
 
-    elif [[ "$(echo "$entry" | xargs)" == "qui suis-je" ]]; then
-        echo "$dest" >&"${MY_PROC[1]}"
+    elif [[ "$(echo "$1" | xargs)" == "qui suis-je" ]]; then
+        echo "$dest"
 
-    elif [[ "$(echo "$entry" | xargs)" == "au revoir" ]]; then
-        # echo "Au revoir $dest." >&"${MY_PROC[1]}"
-
-        exit 0
+    elif [[ "$(echo "$1" | xargs)" == "au revoir" ]]; then
+        echo "$EXIT_MESSAGE"
     else
-        ret=$(readFile "$entry")
-        if [[ "$ret" == "" ]]; then
-            echo "🤖 ?" >&"${MY_PROC[1]}"
+        local retFile=$(readFile "$1")
+        if [[ "$retFile" == "" ]]; then
+            echo "🤖 ?"
+        else
+            echo "$retFile"
+        fi
+    fi
+}
+
+main() {
+    checkParameters "$@"
+    coproc MY_PROC { ./chat "$rec" "$dest" --bot; }
+    while read -r input <&"${MY_PROC[0]}"; do
+        entry="${input#* }"
+        ret=$(manageInput "$entry")
+        if [ "$ret" == "$ERROR_MESSAGE" ] || [ "$ret" == "$EXIT_MESSAGE" ]; then
+            break
         else
             echo "$ret" >&"${MY_PROC[1]}"
         fi
-    fi
-done
+    done
+    cleanUp
+}
+
+
+############## MAIN ##############
+
+# On appelle main avec tous les arguments de lancement
+main "$@"

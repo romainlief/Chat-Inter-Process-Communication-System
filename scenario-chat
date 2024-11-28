@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 
 # scenario-chat utilisateur destinataire fichier-stdin [options]
 
