@@ -80,10 +80,15 @@ De plus, les OS modernes sont majoritairement écrits en C, bien qu'ils utilisen
 \paragraph{}
 
 \subsection{Gestion des signaux}
-\paragraph{Pour la gestion des processus, nous avons décidé d'utiliser "sigaction" et non pas "signal" car celle-ci nous a été recommandée par notre assistant durant un Tp.
+\paragraph{Pour la gestion des processus, nous avons décidé d'utiliser "sigaction" et non pas "signal" car celle-ci nous a été recommandée par notre assistant durant un TP.
 En effet, "signal" est une fonction qui ne permet pas de gérer les signaux de manière fiable, du moins nous n'avons pas réussi a la faire fonctionner 
 correctement dans notre projet et avons changé. "sigaction" est donc la fonction à utiliser pour gérer les signaux grâce à sa structure 
-"struct sigaction" qui permet une certaine modularité de la structure du code et dans la gestion des signaux.}
+"struct sigaction" qui permet une certaine modularité de la structure du code et dans la gestion des signaux. Cependant, dans une fraction du code (init.c, lignes 1 et 59),
+nous avons tout de même utilsé "signal" afin de remplacer le "sigignore" en raison d'un warning à ce niveau lors de la compilation. En faisant nos recherches, nous sommes
+tombés sur cette page \hyperref{https://stackoverflow.com/questions/36696318/handling-warning-implicit-declaration-of-function-sigignore}{StackOverflow} concernant exactement
+le problème qu'on avait. C'est donc pourquoi nous avons décidé  de remplacer "sigignore(SIGINT)" par "signal(SIGINT, SIG_IGN)", ce qui nous a permis de régler le warning lors
+de la compilation.
+}
 
 \subsection{Gestion de la mémoire partagée}
 \paragraph{La mémoire partagée, utilisée par le mode "--manuel", est implémentée à l'aide d'une structure "sharedMemo". Celle-ci permet une gestion
@@ -123,17 +128,16 @@ fin de la mémoire). Il est donc placé au début de notre espace alloué. En ce
 récupérons le dernier élément, sans oublier de placer l'index à la fin du string juste derrière celui retiré.}
 
 \subsection{Troisième difficultée: Taille du buffer}
-\paragraph{Pour la taille du buffer, nous avions mis 256 octets, ce qui nous semblait correcte mais 
-nous nous sommes rendu compte en posant la question à notre assistant que le buffer devait avoir une taille infinie,
-cela quelque jours avant la remise du projet. Nous avons donc du changer cela en vitesse. Pour la résolution de ce problème,
-nous avons utilisé des concepts vu lors du premier Tp d'introduction ou nous devions agrandir la taille d'une 
-liste en la doublant tout en utilisant malloc pour allouer la mémoire afin que celle-ci ne sépuise pas.
-De plus, évidemmment, un changement de ce genre en dernière minute a des conséquences sur le reste du code, cela a provoqué 
-des bugs que nous avons du corriger.}
+\paragraph{Initialement, pour la taille du buffer, nous avions choisi 256 octets. Mais
+nous nous sommes rendu compte, en posant la question à notre assistant, que le buffer devait avoir une taille infinie. Afin 
+de résoudre ce problème, nous nous sommes inspirés du procédé abordé au premier TP de ce cours, c'est-à-dire une mémoire dynamique
+allouée avec "malloc()" qui double sa taille si l'espace vient à être insuffisant. Nous nous sommes donc lancés sur cette voie mais suite
+à quelque recherches, nous avons découvert la fonction "getline()", qui récupérait un input de taille variable automatiquement et qui de manière
+générale simplifiait le code. Nous avons tout de même laissé les fonctions initialement créées à cet effet dans le fichier "memory.c" par souci de
+conservation de code fonctionnel.}
 
 \subsection{Quatrième difficultée: Communication inter-processus}
 \paragraph{ La difficultée principe fut de savoir à partir de quel processus, enfant ou père généré par le fork, imprimer les messages reçus dans le mode manuel.}
-
 
 
 \section{Solutions Originales et Améliorations}
@@ -145,6 +149,15 @@ peut l'être. Nous avons alors fait le choix de mettre tout les variables global
 "\#define \textless nom de la variable\textgreater \textless valeur\textgreater". Cela permet d'avoir une lisibilité accrue, et économiser de l'espace mémoire. Des
 problèmes de compatibilité entre types pourraient apparaître, certes, mais nous n'utilisons les variables globales que comme types simples comme int ou str, tout en
 faisant attention à leur contexte d'utilisation, nous permettant ainsi d'éviter ces erreurs.}
+
+\subsection{Refactoring du script bash "chat-bot"}
+\paragraph{Étant nouveaux au bash scripting, nous avons d'abord écrit le code bash en un coup, sans l'utilisation de fonctions. Cela donnait une impression de
+code brouillon possédant peu de clarté. C'est pourquoi vers la fin du projet, nous avons pris le temps de nous repencher dessus et de refactorer le code à l'aide
+de fonctions pour plus de clarté.}
+
+\subsection{Structure du code}
+\paragraph{Afin d'obtenir une structure avec le plus de clarté possible, nous avons créé des fichiers "global.h" et "constant.h" pour éviter les déclarations
+multiples de variables globales dans différents fichiers à la fois.}
 
 \section{Conclusion}
 \paragraph{Ce projet nous a permis de mettre en pratique et de se familiariser avec les concepts vus en cours d'OS,
